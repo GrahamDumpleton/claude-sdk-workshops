@@ -1374,11 +1374,44 @@ variable the learner can change if it is taken. The learner never
 types code: each step changes a file through an action and restarts
 the server.
 
+The server is written with FastAPI and run with `uvicorn`. The user
+chose it on 2026-10-02 over plain Starlette, which had been the
+proposal: it is the framework a Python developer is most likely to
+know and to use afterwards, and it costs little here.
+
+- The SDK already brings Starlette, uvicorn and Pydantic, through its
+  dependency on the `mcp` package, so `fastapi` adds itself and one
+  small package. It is added to `pyproject.toml`, pinned, when the
+  first chat app workshop is written, and never as
+  `fastapi[standard]`, which pulls in about thirty packages the
+  workshops have no use for. The README's `uvx` command gains a
+  second `--with` for it then.
+
+- A route declares its request body as a Pydantic model, and FastAPI
+  parses and checks the JSON before the function runs. The first
+  workshop explains that, since nothing in the function shows it.
+
+- A streamed reply is a route with
+  `response_class=EventSourceResponse`, from `fastapi.sse`, that
+  yields: each item is sent to the browser as one `data:` line of a
+  server-sent event stream. That arrived in FastAPI 0.135.0. A route
+  that yields what `async for message in query(...)` hands it is
+  close to the SDK's own loop.
+
+- The page FastAPI generates at `/docs` lets a route be tried from
+  the browser, which the first workshop can use before its own page
+  exists.
+
+Checked without the model on 2026-10-02: FastAPI 0.142.2 ran on Python
+3.14 beside the Starlette 1.7.0 the SDK brings, with a JSON route, a
+rejected body and a streamed route. Whether a terminal the extension
+opens finds the project environment's Python is still to be checked.
+
 ## The chat app workshops
 
 These entries are one step short of the extending entries: they say
-what each workshop adds. The collection is designed in detail, starting
-with the choice of web framework, once the first two are written.
+what each workshop adds. The collection is designed in detail, with
+the user, before it is written.
 
 1. **`the-smallest-chat-app`: Build the smallest chat app.** A page
    with a box and a server with one route that calls `query()` and
@@ -1519,7 +1552,14 @@ the main agent is on Sonnet and its subagent on Haiku. One pass
 through the foundations collection is about forty calls, and one
 through the extending collection about forty more, each a cent or two
 at API prices by the trial's figures, and three to five cents for the
-runs that read ten files.
+runs that read ten files. Haiku did everything the first two
+collections needed: structured output, custom tools, skills,
+subagents, compaction and tool search all worked on it. Effort made no
+visible difference on Haiku in the trial, which is why foundations
+workshop 5 shows it on Sonnet, where it made little on a task of that
+size either. The user reviewed both collections on 2026-10-02 and
+confirmed the split: Haiku for nearly everything, Sonnet for those few
+runs.
 
 **Every run is isolated and lean.** Every options object sets
 `setting_sources=[]`, `strict_mcp_config=True`, `tools` to exactly what
@@ -1595,7 +1635,9 @@ of supply of ten suppliers.
 Each workshop ships the files it uses, so none depends on another. The
 documents hold details chosen to be unguessable, an odd closing time, a
 returns window of an unusual length, so that a right answer shows the
-file was read.
+file was read. The user confirmed the bookshop on 2026-10-02, over the
+alternative of material from his own work, such as the wrapt
+documentation. The chat app collection keeps it.
 
 **Learners never type code.** Every cell, command and file edit
 arrives through an action.
@@ -1724,31 +1766,25 @@ None at present.
 
 ## Open questions
 
-- **The running example.** Tidewater Books was proposed and has not
-  been confirmed by the user. The alternative raised was material from
-  the user's own work, such as the wrapt documentation.
-
 - **Sessions left in the learner's history.** Every run writes a
   transcript under the Claude configuration directory, filed under the
-  workspace's path. Whether the workshops should keep these out, by an
-  option that turns persistence off if the pinned release has one, or
-  clean up after themselves, or leave them, is not decided. Only the
-  sessions workshop needs them kept. As written, that workshop deletes
-  the two sessions it makes on purpose, and every other run of every
-  workshop, the login checks included, leaves its transcript.
+  workspace's path. Only the sessions workshop needs them kept. As
+  written, that workshop deletes the two sessions it makes on purpose,
+  and every other run of every workshop, the login checks included,
+  leaves its transcript. The user looked at this on 2026-10-02, called
+  it not ideal, and chose to leave the workshops as they are for now.
 
-- **The web framework for the chat app.** The SDK is asynchronous, so
-  the server is an ASGI one. Starlette with server-sent events is the
-  proposal, since it adds the least beside the subject. It is added to
-  `pyproject.toml` when the collection is designed. Whether a terminal
-  the extension opens finds the project environment's Python is to be
-  checked then.
-
-- **What Haiku cannot do.** Nothing the first two collections needed.
-  Structured output, custom tools, skills, subagents, compaction and
-  tool search all worked on it. Effort made no visible difference on
-  Haiku in the trial, which is why foundations workshop 5 shows it on
-  Sonnet, where it made little on a task of that size either.
+  What was found, for when it is taken up: the Python SDK has no
+  option for it, and its documentation says to set the environment
+  variable `CLAUDE_CODE_SKIP_PROMPT_HISTORY=1` for the Claude Code
+  process. On the pinned release that wrote no transcript, whether set
+  through the `env` option or in the kernel's `os.environ`, and the
+  session could not then be listed or resumed. A `ClaudeSDKClient`
+  conversation, `/compact`, `get_context_usage()` and a subagent all
+  still worked with it set. The change would be one line in the
+  imports cell of every workshop but the sessions one, a paragraph in
+  each welcome page's hint about the options, and two paragraphs of
+  the sessions workshop.
 
 - **A `CLAUDE.md` inside the repository.** Extending workshop 4 ships
   its house rules as `files/CLAUDE.md`. Claude Code loads a
