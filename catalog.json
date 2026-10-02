@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "title": "Claude Agent SDK workshops",
+  "description": "Guided JupyterLab workshops for the Claude Agent SDK for Python: what an agent is and how to run one, how to extend it, and how to build a chat application on it.",
+  "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+  "collections": [
+    {
+      "url": "collections/foundations/collection.json",
+      "id": "grahamdumpleton.me/claude-agent-sdk/foundations",
+      "title": "Agent foundations with the Claude Agent SDK",
+      "description": "Guided JupyterLab workshops on what an AI agent is and how to run one with the Claude Agent SDK for Python: the agent loop, tools and their results, what a run costs, instructions, models, permissions, conversations, sessions, streaming and structured output.",
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "foundations"
+      ]
+    },
+    {
+      "url": "collections/extending/collection.json",
+      "id": "grahamdumpleton.me/claude-agent-sdk/extending",
+      "title": "Extending an agent with the Claude Agent SDK",
+      "description": "Guided JupyterLab workshops on giving an agent built with the Claude Agent SDK for Python more to work with: your own tools, MCP servers, your own data, project instructions, skills, approvals, hooks, subagents and long sessions.",
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "tools"
+      ]
+    },
+    {
+      "url": "collections/chat-app/collection.json",
+      "id": "grahamdumpleton.me/claude-agent-sdk/chat-app",
+      "title": "Building a chat app with the Claude Agent SDK",
+      "description": "Guided JupyterLab workshops that build a web chat application on the Claude Agent SDK for Python, a step at a time: a first reply, streaming, a conversation per visitor, showing the agent's work, approvals, tools, history and usage.",
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "web"
+      ]
+    }
+  ]
+}

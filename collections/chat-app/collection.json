@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "grahamdumpleton.me/claude-agent-sdk/chat-app",
+  "title": "Building a chat app with the Claude Agent SDK",
+  "description": "Guided JupyterLab workshops that build a web chat application on the Claude Agent SDK for Python, a step at a time: a first reply, streaming, a conversation per visitor, showing the agent's work, approvals, tools, history and usage.",
+  "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+  "tags": [
+    "python",
+    "claude",
+    "agents",
+    "web"
+  ],
+  "ordered": true,
+  "workshops": []
+}

@@ -1,0 +1,34 @@
+# This repository is a collection of workshops, not a Python package: uv
+# manages the environment the workshops are written, checked and run in.
+# The runtime dependencies are what a learner needs, JupyterLab, the
+# extension and the Claude Agent SDK; the dev group adds the MCP server
+# and the self-test used while writing. jupyterlab-workshop is pinned
+# once, here, and the dev group's extras resolve to the same release.
+#
+# claude-agent-sdk is here, pinned to the release the
+# reference/claude-agent-sdk-python submodule is at, rather than in a
+# requirements.txt per workshop as the other workshop repositories do
+# with their subject. The package bundles the Claude Code binary and
+# installs to about 216 MB, so an environment per workshop would cost
+# several gigabytes across the collections. Every workshop runs on the
+# kernel of this one environment instead, and no manifest declares an
+# `environment` or `install-packages`. OUTLINE.md records the decision.
+[project]
+name = "claude-sdk-workshops"
+version = "0.1.0"
+description = "Guided JupyterLab workshops for the Claude Agent SDK"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "jupyterlab>=4.6,<5",
+    "jupyterlab-workshop==0.15.0",
+    "claude-agent-sdk==0.2.163",
+]
+
+[dependency-groups]
+dev = [
+    "jupyterlab-workshop[mcp,test]",
+]
+
+[tool.uv]
+package = false

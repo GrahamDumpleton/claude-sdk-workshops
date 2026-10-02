@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "grahamdumpleton.me/claude-agent-sdk/foundations",
+  "title": "Agent foundations with the Claude Agent SDK",
+  "description": "Guided JupyterLab workshops on what an AI agent is and how to run one with the Claude Agent SDK for Python: the agent loop, tools and their results, what a run costs, instructions, models, permissions, conversations, sessions, streaming and structured output.",
+  "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+  "tags": [
+    "python",
+    "claude",
+    "agents",
+    "foundations"
+  ],
+  "ordered": true,
+  "workshops": []
+}

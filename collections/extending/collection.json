@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "grahamdumpleton.me/claude-agent-sdk/extending",
+  "title": "Extending an agent with the Claude Agent SDK",
+  "description": "Guided JupyterLab workshops on giving an agent built with the Claude Agent SDK for Python more to work with: your own tools, MCP servers, your own data, project instructions, skills, approvals, hooks, subagents and long sessions.",
+  "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+  "tags": [
+    "python",
+    "claude",
+    "agents",
+    "tools"
+  ],
+  "ordered": true,
+  "workshops": []
+}

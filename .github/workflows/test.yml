@@ -1,0 +1,40 @@
+# Lint the catalog, every collection index and every workshop, which is
+# what `just lint` does locally. The commands are spelled out rather
+# than run through the Justfile so the job needs nothing but uv.
+#
+# Lint only. The other workshop repositories also self-test every
+# workshop here, but these workshops call the model on every step,
+# under the Claude login of whoever runs them, and a runner has none.
+# The self-test is run locally, with `just test <name>`, before a
+# workshop is called done.
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install the locked environment
+        run: uv sync
+
+      - name: Lint the catalog, every collection and every workshop
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          uv run jupyter workshop lint catalog.json
+          for index in collections/*/collection.json; do
+            uv run jupyter workshop lint "$index"
+          done
+          for workshop in workshops/*/; do
+            uv run jupyter workshop lint "$workshop"
+          done
