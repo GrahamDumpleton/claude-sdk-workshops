@@ -1,0 +1,53 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: your-first-agent
+title: Run your first agent
+version: 0.1.0
+description: Find out what an AI agent is by running one with the Claude Agent SDK. Send a prompt and take apart the messages that come back, ask a question the model cannot answer on its own, then give it one tool and watch it read a file to get the answer.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/your-first-agent
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have run an agent: sent a prompt with `query()`, read the system,
+  assistant and result messages that came back, and seen the difference
+  one tool makes. Without it the model could only say it had no way to
+  read the file. With it, the model asked for the file, the SDK read
+  it, and the answer was right.
+
+  Next is **Watch the agent loop**, which slows that exchange down:
+  what the model's request looks like, who carries it out, and how the
+  result gets back to the model.
+
+  The [overview](https://code.claude.com/docs/en/agent-sdk/overview)
+  of the Claude Agent SDK says what it provides, and the
+  [Python reference](https://code.claude.com/docs/en/agent-sdk/python)
+  covers `query()`, the options and every message type this workshop
+  opened.
+variables:
+  - name: notebook
+    type: path
+    default: your-first-agent.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-ask-a-question.md
+  - pages/03-what-the-session-was-given.md
+  - pages/04-the-reply-and-the-result.md
+  - pages/05-a-question-it-cannot-answer.md
+  - pages/06-give-it-a-tool.md
+  - pages/07-finish.md

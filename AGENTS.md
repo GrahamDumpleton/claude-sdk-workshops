@@ -177,14 +177,28 @@ time, and it can act on the machine it runs on.
 - **Keep the request small.** Give a short `system_prompt` of the
   workshop's own. Leave the `claude_code` preset to the workshop that
   teaches it: it adds about sixteen thousand tokens to every request.
-  Set `max_turns` to a few more than the step should take, so a run
-  that goes wrong stops. Ship small files: a tool result is input to
-  the next request.
+  Set `thinking={"type": "disabled"}`: left unset, Haiku reasons before
+  every reply, which made the output of a one line answer about four
+  times the size when it was measured, and puts thinking messages and blocks in the
+  stream that a page would then have to explain. Set `max_turns` to a
+  few more than the step should take, so a run that goes wrong stops.
+  Ship small files: a tool result is input to the next request.
+
+- **Check the login on the welcome page.** With no login the SDK
+  yields a result whose `is_error` is true and then raises
+  `ResultError`, so the first call in a notebook would end in a
+  traceback. Every workshop's welcome page therefore carries the same
+  two cells as `your-first-agent`: the imports, then a one word run
+  inside `try` that sets `ready`, with a check on `ready` and a hint
+  saying how to log in. It costs one very small run, and it is the
+  only cell that needs the `try`.
 
 - **One model call per step where it can be.** A cell that calls the
-  agent takes five to fifteen seconds. Every page with such a cell says
-  so before the action, so a pause does not read as a failure, and no
-  cell makes a second call that the page does not need.
+  agent takes a few seconds, and longer for a run of several turns.
+  The welcome page says so at the first such cell, and a page whose
+  cell will take noticeably longer says so again, so a pause does not
+  read as a failure. No cell makes a second call that the page does
+  not need.
 
 - **Checks read structure, never the model's words.** The same prompt
   gives a different answer on every run, so no check compares text the
@@ -233,7 +247,10 @@ and prefer them over the underlying commands:
 
 - `just bump <version>` moves the jupyterlab-workshop pin and its
   reference checkout; `just bump-sdk <version>` moves the
-  claude-agent-sdk pin and its reference checkout together.
+  claude-agent-sdk pin and its reference checkout together, and
+  rewrites the release named in the README's commands. The README
+  names it because a learner who runs the workshops with `uvx`, with no
+  checkout, has to add the SDK to that environment by hand.
 
 The order of a collection lives in the Justfile, as the list of
 workshop names the `index-<collection>` recipe passes to
@@ -305,6 +322,20 @@ sections above:
 - Learners never have to type code. Every cell, command and file edit
   arrives through an action, so the learner's attention goes on reading
   and predicting rather than on typing and typos.
+
+- A diagram goes in a file of its own, not in a page. Where a picture
+  of how components fit together, or of the order things happen in,
+  explains something better than prose, ship it as a Markdown file
+  under `files/diagrams/` holding a mermaid block, with a sentence
+  above it and a short reading of it below, and open it from the page
+  with `file-open` and `:factory: Markdown Preview`. JupyterLab renders
+  mermaid in its Markdown preview, and a tab in the main area has the
+  width the instructions panel does not. Use one where it earns its
+  place, not on every page. Check each diagram by opening it in
+  JupyterLab before the workshop is called done: mermaid lays a
+  flowchart out itself, and the first attempt often has crossing
+  arrows. Diagram files sit beside the files the agent works on, so a
+  prompt that sends the agent looking names the directory to look in.
 
 - Prediction before execution, about structure. Where a result is
   surprising, a `quiz` asks for a prediction before the cell runs, and

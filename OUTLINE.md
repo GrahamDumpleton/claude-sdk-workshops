@@ -7,8 +7,8 @@ before adding a workshop, and update it when one is added, changed or
 dropped: the status table at the end records where each workshop
 stands, and the open questions section shrinks as they are settled.
 
-Nothing is written yet. The first collection is designed in full
-below. The second and third are designed to the level of what each
+The first workshop is written. The first collection is designed in
+full below. The second and third are designed to the level of what each
 workshop is for, and their entries are filled out, with the user,
 before the first workshop of each is written.
 
@@ -132,6 +132,36 @@ value.
 - The installed package is about 216 MB, nearly all of it the bundled
   Claude Code binary.
 
+Found while writing the first workshop, on the same release:
+
+- Left to itself, Haiku reasons before it replies. A one sentence
+  answer came with two `SystemMessage` objects of subtype
+  `thinking_tokens` and an `AssistantMessage` holding a `ThinkingBlock`
+  with no text, and 158 of its 226 output tokens were thinking. With
+  `thinking={"type": "disabled"}` the same run produced a
+  `SystemMessage` (`init`), a `RateLimitEvent`, one `AssistantMessage`
+  and the `ResultMessage`, and 54 output tokens.
+
+- Under a subscription login the stream carries a `RateLimitEvent`
+  whose raw data gives the fraction of the five hour and seven day
+  limits used. Workshop 3 can show a learner where they stand from it.
+
+- With no login, the run yields an `AssistantMessage` whose `error` is
+  `authentication_failed` and a `ResultMessage` with `is_error` true
+  and the text "Not logged in · Please run /login", and `query()` then
+  raises `ResultError`.
+
+- `tools=["Read"]` with no `allowed_tools` reads a file in the working
+  directory without any approval. The kernel of a notebook in the
+  workspace starts in the workspace, so that is the agent's working
+  directory with no `cwd` set.
+
+- A run with no tools took about three seconds in the self-test, and
+  the run that reads a file about four.
+
+- JupyterLab's Markdown preview renders a mermaid block, flowchart and
+  sequence diagram both.
+
 ## Shape of the foundations collection
 
 One ordered collection, in three movements, with no visible break
@@ -160,8 +190,10 @@ its own, even though the order is the order to take them in.
 
 Every workshop here is a notebook, on the kernel of the JupyterLab
 environment, with the model set to Haiku except where an entry says
-otherwise. Between them the ten workshops make about thirty model calls
-in one pass.
+otherwise. Between them the ten workshops make about forty model
+calls in one pass, counting the login check each one opens with. The
+counts in the entries leave that check out, except where they say
+otherwise.
 
 ## The foundations workshops
 
@@ -175,40 +207,51 @@ cannot read a file, run a command or remember yesterday. An agent is a
 program wrapped around a model that lets it ask for things to be done,
 does them, and gives it the results, in a loop, until the model has an
 answer. The Claude Agent SDK is that program as a library: it is Claude
-Code, the same loop and tools, driven from Python. The page also says
-how it is paid for: the SDK uses the login of the `claude` command on
-this machine, and a run counts against that plan's usage.
+Code, the same loop and tools, driven from Python. A diagram of the
+pieces, your code, the SDK, the model and the files, opens in a tab of
+its own. The page also says how it is paid for: the SDK uses the login
+of the `claude` command on this machine, and a run counts against that
+plan's usage.
 
-The first cell calls `query()` with a prompt that needs no tools and
-`tools=[]`, collects every message into a list and prints the type of
-each: a `SystemMessage`, an `AssistantMessage`, a `ResultMessage`.
-Three cells then open one each. The `init` system message says what the
-session was given: the model's full name, the tools, the working
-directory and that no API key is in use. The assistant message holds a
-`TextBlock`. The result message holds the same text, and says the run
-succeeded.
+The welcome page then creates the notebook and checks the login: a one
+word run inside `try`, so that a machine with no login gets a message
+and a hint, not a traceback. Every later workshop opens the same way.
+
+The first cell of the next page calls `query()` with a prompt that
+needs no tools and `tools=[]`, collects every message into a list and
+prints the type of each: a `SystemMessage`, an `AssistantMessage`, a
+`ResultMessage`, and under a subscription a `RateLimitEvent`, which the
+page names in a sentence. Three cells then open one each. The `init`
+system message says what the session was given: the model's full name,
+the tools, the working directory and where the credential came from.
+The assistant message holds a `TextBlock`. The result message holds
+the same text, and says the run succeeded.
 
 Then the point of the workshop. The same options are asked a question
 that only a shipped file can answer, what time the shop closes on
 Saturday. With no tools the model cannot know, and the page says to
 read what it does about that. A `quiz` asks what has to change. The
 last cell adds `tools=["Read"]`, and the stream now has more in it: the
-model asks for the file, something reads it, and the answer is right.
-The page names what just happened as the loop, and leaves how it works
-to the next workshop.
+model asks for the file, the SDK reads it, and the answer is right.
+The page names what just happened as the loop, opens a sequence diagram
+of the run just made, and leaves how the loop works to the next
+workshop.
 
-- Format: notebook. The checks read the list of message type names,
-  that the `init` message's tool list is empty and then holds `Read`,
-  that no `ToolUseBlock` appears in the run without tools and one named
-  `Read` appears in the run with it, and that the closing time from the
-  shipped file is in the final result.
+- Format: notebook. The checks read that the login check reached the
+  model, the set of message type names, that the `init` message's tool
+  list is empty and then holds `Read`, that no `ToolUseBlock` appears
+  in the run without tools and one named `Read` appears in the run with
+  it, and that the closing time from the shipped file is in the final
+  result.
 
-- Ships: `shop/opening-hours.md`.
+- Ships: `shop/opening-hours.md`, and two diagrams,
+  `diagrams/the-pieces-of-an-agent.md` and
+  `diagrams/a-run-with-a-tool.md`.
 
 - Source: `overview`, `quickstart`, the `query()` and message type
   sections of `python`, `authentication`, and `examples/quick_start.py`.
 
-- Model calls: three. Length: 15 minutes.
+- Model calls: four, the login check included. Length: 15 minutes.
 
 ### 2. `watching-the-agent-loop`: Watch the agent loop
 
@@ -264,6 +307,12 @@ Then `total_cost_usd`, and what it means here. It is the SDK's estimate
 of the run at API prices. Under a subscription nothing is charged per
 run, and the same tokens count against the plan's limits, so the figure
 is a measure of size.
+
+Under a subscription login the stream also carries a `RateLimitEvent`,
+and a cell prints what it reports: the fraction of the plan's five
+hour and seven day limits used so far. That is the real measure for a
+subscriber, and the cell guards for the event being absent, as it is
+with an API key.
 
 Then a run that does not finish. The same task is given
 `max_turns=1`, which is not enough for it. A `quiz` asks what the
@@ -349,6 +398,14 @@ table. The page closes with the rule the collections follow: use the
 smallest model that does the job reliably, move up when it gets a
 multi-step task wrong, and lower effort for simple, well defined work.
 
+Every agent so far has set `thinking={"type": "disabled"}` without
+saying much about it. One cell here runs Haiku with that line taken
+out, and the learner sees what it was holding back: the model reasons
+before it replies, the stream gains thinking messages, and the output
+tokens grow several times over for the same answer. The page says what
+thinking is for, harder problems than these, and why the workshops
+leave it off.
+
 This is the one workshop in the collection that leaves Haiku, for two
 Sonnet runs, because the comparison is its subject.
 
@@ -363,7 +420,8 @@ Sonnet runs, because the comparison is its subject.
   before it is fixed, so that it is one where the difference usually
   shows.
 
-- Model calls: three, two of them on Sonnet. Length: 15 minutes.
+- Model calls: five, two of them on Sonnet, the login check included.
+  Length: 15 minutes.
 
 ### 6. `deciding-what-it-can-do`: Decide what the agent can do
 
@@ -556,9 +614,11 @@ with the two collections that follow.
 
 ## Topics the foundations collection leaves out
 
-- **Configuring extended thinking.** `thinking` and its display are
-  API level detail, differ by model, and change often. Effort is the
-  control the workshops teach.
+- **Configuring extended thinking beyond on and off.** Thinking
+  budgets and how thinking is displayed are API level detail, differ by
+  model, and change often. The workshops turn thinking off, workshop 5
+  shows what it is by leaving it on once, and effort is the control
+  they teach.
 
 - **Fallback models and spending budgets.** `fallback_model` and
   `max_budget_usd` are named in passing in workshop 3 and no more. The
@@ -917,14 +977,19 @@ workshop. Here the SDK is a dependency of the project, pinned in
 `pyproject.toml`, and every notebook runs on the JupyterLab
 environment's kernel. The package is about 216 MB because it bundles
 Claude Code, and 27 copies would be several gigabytes. The cost is that
-the workshops cannot be taken by subscribing to the catalog from
-another JupyterLab unless that environment has the pinned SDK, which
-the README says.
+whoever starts JupyterLab has to bring the SDK with it. A checkout does
+that through `uv`. The route most learners take, `uvx` with
+`jupyter-workshop launch` on the catalog's address and no checkout,
+does it with `--with "claude-agent-sdk==<release>"`, which the README
+spells out; the first workshop passed its self-test in an environment
+made that way. Someone subscribing from a JupyterLab of their own
+installs the SDK into it themselves.
 
 **The pin and the reference move together.** `claude-agent-sdk` is
-pinned exactly, and `reference/claude-agent-sdk-python` is at the same
-release's tag. `just bump-sdk` moves both. The SDK moves fast, so a
-bump is followed by reading the changelog and retesting, not assumed
+pinned exactly, `reference/claude-agent-sdk-python` is at the same
+release's tag, and the README names the same release in the commands a
+learner copies. `just bump-sdk` moves all three. The SDK moves fast, so
+a bump is followed by reading the changelog and retesting, not assumed
 safe.
 
 **Haiku unless the entry says otherwise.** Every options object sets
@@ -937,12 +1002,22 @@ calls, most of them a few cents at API prices by the trial's figures.
 
 **Every run is isolated and lean.** Every options object sets
 `setting_sources=[]`, `strict_mcp_config=True`, `tools` to exactly what
-the step needs, a short `system_prompt` of the workshop's own, and a
-`max_turns` a little above what the step should take. The first two
-keep the learner's own instructions, skills and claude.ai connectors
-out of the run, so every learner gets the same agent. The rest keep the
-request small. A workshop that teaches one of these options relaxes
-that one, against files it ships, and says so.
+the step needs, a short `system_prompt` of the workshop's own,
+`thinking={"type": "disabled"}`, and a `max_turns` a little above what
+the step should take. The first two keep the learner's own
+instructions, skills and claude.ai connectors out of the run, so every
+learner gets the same agent. The rest keep the request small, and
+turning thinking off also keeps the stream to the messages the pages
+explain. A workshop that teaches one of these options relaxes that one,
+against files it ships, and says so. The first workshop names the three
+it does not explain in a hint, and foundations workshop 5 is where
+thinking is turned back on and looked at.
+
+**Every workshop checks the login first.** The welcome page of each
+workshop runs the imports and then a one word run inside `try`, with a
+check and a hint on how to log in. Workshops are self-contained, so
+each one has to stand up to a machine that is not logged in, and
+without the check the first call ends in a traceback.
 
 **The agent stays in the workspace and is given little.** The working
 directory is the workshop's workspace. No workshop uses
@@ -965,8 +1040,18 @@ screenshot or a quoted reply would be wrong for most learners.
 
 **Model calls take seconds, and pages say so.** The rule in the other
 repositories that a cell should not pause is not one these can keep: a
-run takes five to fifteen seconds. Each page with a model call says so
-ahead of the action, and each step makes one run where it can.
+run takes a few seconds, and more when it takes several turns. The
+welcome page says so at the first model call, and each step makes one
+run where it can.
+
+**Diagrams in files of their own.** Where a picture of how the pieces
+fit, or of the order things happen in, says it better than prose, the
+workshop ships a Markdown file with a mermaid diagram under
+`diagrams/` and a page opens it in JupyterLab's Markdown preview, in a
+tab of the main area. The instructions panel is too narrow for one. The
+user asked for this on 2026-10-02 and left where to use it to
+judgement: the first workshop has two, one of the components and one
+of a run, and a workshop gets one only where it earns its place.
 
 **Concept before call.** Each page says what a thing is and why,
 before the cell that uses it. The collections exist to teach how agents
@@ -1033,9 +1118,10 @@ catalog. There is no hosted form.
 and every workshop. It does not self-test, because a runner has no
 Claude login and the workshops call the model at every step.
 
-**Not yet on GitHub.** The Justfile, the indexes and the README use
-`https://github.com/GrahamDumpleton/claude-sdk-workshops` as the
-repository's address. The repository has not been created there.
+**On GitHub, private.** The repository is at
+`https://github.com/GrahamDumpleton/claude-sdk-workshops`, private
+while the workshops are being written. The Justfile, the indexes and
+the README use that address.
 
 ## Extension features the workshops use
 
@@ -1063,7 +1149,17 @@ files.
 **Shipped files.** Under `files/`, copied into the workspace on first
 open, before the opening layout is applied. The kernel starts in the
 workspace, so `shop/opening-hours.md` is the path a cell and the agent
-both use; this is to be confirmed when the first workshop is written.
+both use, as the first workshop confirmed.
+
+**Diagrams.** `file-open` with `:factory: Markdown Preview` opens a
+shipped Markdown file rendered, mermaid blocks included, as a tab
+beside the notebook. Without `area` it joins the notebook's area, which
+gives it the full width.
+
+**The login check and preflight.** The manifest lists `claude` under
+`requires.tools` as optional, and the welcome page shows a note under
+`{when} "claude" in missing_tools`. The SDK carries its own Claude
+Code, so the command is needed only to log in.
 
 **The web pane.** `url-open` with `pane` shows a page in an iframe in
 the main area and reloads it each time it runs. The chat app workshops
@@ -1101,14 +1197,9 @@ None at present.
   in detail. Effort made no visible difference on Haiku in the trial,
   which is why foundations workshop 5 shows it on Sonnet.
 
-- **An API key in the learner's environment.** The SDK uses
-  `ANTHROPIC_API_KEY` in preference to the login when it is set, and
-  the runs are then billed. Whether the first workshop should warn
-  when the `init` message reports a key is to be decided when it is
-  written.
-
-- **The repository on GitHub.** Not created. Until it is, the address
-  in the indexes and the README points at nothing.
+- **When the repository goes public.** It is private for now. The
+  README's clone command and the collection addresses work for others
+  only once it is public.
 
 ## Status
 
@@ -1123,7 +1214,7 @@ Foundations:
 
 | # | Workshop | Status |
 | --- | --- | --- |
-| 1 | `your-first-agent` | Planned |
+| 1 | `your-first-agent` | Done |
 | 2 | `watching-the-agent-loop` | Planned |
 | 3 | `reading-the-result` | Planned |
 | 4 | `giving-the-agent-instructions` | Planned |

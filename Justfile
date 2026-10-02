@@ -196,14 +196,19 @@ bump VERSION:
 # The SDK is pinned in pyproject.toml, since every workshop runs on this
 # environment's kernel, and the reference checkout is what agents read
 # for its source, examples and changelog, so the two move together. The
-# SDK's tags carry a `v` prefix.
-# Pin a new claude-agent-sdk release, relock and move the reference checkout, e.g. `just bump-sdk 0.2.163`.
+# SDK's tags carry a `v` prefix. The README names the same release in
+# the uvx, uv tool and pip commands a learner copies, so it is rewritten
+# here rather than left to be remembered.
+# Pin a new claude-agent-sdk release, relock, move the reference checkout and update the README, e.g. `just bump-sdk 0.2.163`.
 bump-sdk VERSION:
+    #!/usr/bin/env bash
+    set -euo pipefail
     uv add "claude-agent-sdk=={{VERSION}}"
     git -C reference/claude-agent-sdk-python fetch --tags
     git -C reference/claude-agent-sdk-python checkout "v{{VERSION}}"
     git add reference/claude-agent-sdk-python
-    @echo "claude-agent-sdk is at {{VERSION}}; reread the changelog and retest the workshops, since each one calls the release it is pinned to"
+    uv run python -c 'import pathlib, re, sys; p = pathlib.Path("README.md"); p.write_text(re.sub(r"claude-agent-sdk==[0-9][0-9A-Za-z.]*", "claude-agent-sdk==" + sys.argv[1], p.read_text()))' "{{VERSION}}"
+    echo "claude-agent-sdk is at {{VERSION}}; reread the changelog and retest the workshops, since each one calls the release it is pinned to"
 
 # No workshop here builds an environment of its own, so the prune is a
 # no-op unless one is added later; it is kept so that a kernelspec left

@@ -20,8 +20,9 @@ collections.
 
 They run on your own machine and nowhere else, because every step calls
 the model with your own Claude login. There is no Binder, Codespaces or
-JupyterLite version. See [What you need](#what-you-need) and
-[Run locally](#run-locally).
+JupyterLite version. One `uvx` command runs them straight from this
+repository, with nothing to clone: see [What you need](#what-you-need)
+and [Run the workshops](#run-the-workshops).
 
 ## The collections
 
@@ -30,9 +31,9 @@ Each collection is a course: its workshops are numbered in the order to
 take them, and the Finish dialog of each offers the next. A
 [catalog](catalog.json) names every collection.
 
-No workshop is written yet. The lists below are the plan, from
-[OUTLINE.md](OUTLINE.md), and each entry is filled in as its workshop
-is written.
+The first workshop is written. The rest of the lists below are the
+plan, from [OUTLINE.md](OUTLINE.md), and each entry is filled in as its
+workshop is written.
 
 ### Agent foundations with the Claude Agent SDK
 
@@ -41,7 +42,13 @@ half hours in all, each in a live notebook.
 
 **What an agent is**
 
-1. **Run your first agent** (`your-first-agent`)
+1. **Run your first agent** (`your-first-agent`, 15 minutes). What an
+   agent is: a model that only produces text, and a program around it
+   that carries out what the model asks for. Send a prompt with
+   `query()` and take apart the system, assistant and result messages
+   that come back. Then ask a question the model cannot answer on its
+   own, give it the `Read` tool, and watch it read a file to get the
+   answer.
 2. **Watch the agent loop** (`watching-the-agent-loop`)
 3. **Read what a run cost** (`reading-the-result`)
 
@@ -101,12 +108,8 @@ them.
   works as well, and is used in preference to the login when it is set,
   in which case every run is billed to that key.
 
-- **[uv](https://docs.astral.sh/uv/)**, which installs Python 3.14,
-  JupyterLab, the extension and the pinned SDK.
-
-- **[just](https://just.systems/)**, for the recipes below. Every
-  recipe is a short `uv run` command you can read in the
-  [Justfile](Justfile) and run by hand.
+- **[uv](https://docs.astral.sh/uv/)**, and nothing else to install.
+  It fetches Python 3.14, JupyterLab, the extension and the SDK.
 
 - **macOS or Linux.** Nothing here has been tried on Windows.
 
@@ -133,31 +136,96 @@ and gives it only the tools the step needs, and the foundations
 workshops explain how that is done and why. The extension shows what a
 workshop is allowed to do, and asks, before it runs anything.
 
-## Run locally
+## Run the workshops
 
-Clone the repository with its submodules and install:
+### Straight from this repository
+
+With uv installed, one command starts JupyterLab with everything the
+workshops need and opens the workshop browser on this repository's
+catalog. Nothing is cloned and nothing is installed that stays. Run it
+in a shell where `claude` is logged in:
 
 ```
-git clone --recurse-submodules https://github.com/GrahamDumpleton/claude-sdk-workshops
+uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" jupyter-workshop launch --root ~/training --catalog https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
+```
+
+What each part is for:
+
+- `--from "jupyterlab-workshop[lab]"` brings the extension, with the
+  `lab` extra bringing JupyterLab along.
+
+- `--with "claude-agent-sdk==0.2.163"` adds the SDK, at the release
+  the workshops are written and tested against. Do not leave it out.
+  The notebooks run in this environment, and without the SDK the first
+  cell of every workshop fails on its import.
+
+- `--root ~/training` is a directory of your own to keep the workshops
+  in. It is created if it is not there.
+
+- `--catalog` names this repository's catalog, which lists the three
+  collections.
+
+JupyterLab starts on a free port and opens the workshop browser with
+the catalog added, which offers each collection to subscribe to. Each
+workshop is fetched from this repository into `~/training/workshops`
+as you open it, and stays there for the next launch. uv keeps the
+environment cached, so a second launch starts in a few seconds.
+
+To land with a collection's workshops already listed, in order, give
+its index in place of the catalog. Repeat `--collection` to list
+several:
+
+```
+uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" jupyter-workshop launch --root ~/training --collection https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/foundations/collection.json
+```
+
+To have a shorter command to come back to, install the same thing as a
+uv tool once, and launch with it from then on:
+
+```
+uv tool install --python 3.14 "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163"
+jupyter-workshop launch --root ~/training --catalog https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
+```
+
+### From a checkout
+
+Clone the repository and start JupyterLab from the checkout. uv
+installs the environment the first time:
+
+```
+git clone https://github.com/GrahamDumpleton/claude-sdk-workshops
 cd claude-sdk-workshops
-just install
+uv run --no-dev jupyter lab --config=jupyter_lab_config.py
 ```
 
-Then start JupyterLab from the checkout, in a shell where `claude` is
-logged in:
+Run from the checkout, the workshops appear under Installed in the
+workshop browser, grouped under each collection and numbered in the
+order to take them. The environment has the SDK at the release
+[pyproject.toml](pyproject.toml) pins.
+
+### From your own JupyterLab
+
+With the extension already installed in a JupyterLab of your own, the
+workshops also need the SDK in the environment that JupyterLab's
+default kernel runs in:
 
 ```
-just lab
+pip install "claude-agent-sdk==0.2.163"
 ```
 
-It opens on the workshop browser with the three collections listed in
-order. Without just, the two commands are `uv sync` and
-`uv run jupyter lab --config=jupyter_lab_config.py`.
+Then, in the workshop browser, choose "Collections…" and enter the raw
+URL of the catalog on the Catalogs tab, or of a collection's index on
+the Collections tab:
 
-The workshops run on the kernel of this environment, which is where
-the pinned SDK is installed. Subscribing to the catalog from another
-JupyterLab works only if that environment has `claude-agent-sdk` at
-the version pinned in [pyproject.toml](pyproject.toml).
+```
+https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
+https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/foundations/collection.json
+https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/extending/collection.json
+https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/chat-app/collection.json
+```
+
+However it is started, the trust dialog appears when a workshop opens.
+It lists what the workshop's pages are allowed to do.
 
 ## What is in the repository
 
@@ -180,7 +248,14 @@ reference/                git submodules, read by agents, at the pinned releases
 
 ## Writing and checking workshops
 
-`just --list` shows every recipe. The ones used most:
+This part is for whoever writes the workshops, and works from a
+checkout made with `git clone --recurse-submodules`. It uses
+[just](https://just.systems/): `just install` sets the checkout up, and
+`just --list` shows every recipe. Each recipe is a short `uv run`
+command you can read in the [Justfile](Justfile) and run by hand. The
+ones used most:
+
+- `just lab` starts JupyterLab from the checkout.
 
 - `just new <name>` scaffolds a workshop under `workshops/`.
 
@@ -205,7 +280,8 @@ CI lints and does not self-test, since a runner has no Claude login.
   the authoring skill and moves `reference/jupyterlab-workshop` to the
   same tag.
 
-- `just bump-sdk <version>` pins a new claude-agent-sdk release and
-  moves `reference/claude-agent-sdk-python` to the same tag. The SDK
+- `just bump-sdk <version>` pins a new claude-agent-sdk release, moves
+  `reference/claude-agent-sdk-python` to the same tag, and rewrites the
+  release named in the commands in this README. The SDK
   changes quickly, so read its changelog and retest the workshops
   after a bump.

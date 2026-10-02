@@ -11,5 +11,41 @@
     "foundations"
   ],
   "ordered": true,
-  "workshops": []
+  "workshops": [
+    {
+      "name": "your-first-agent",
+      "title": "Run your first agent",
+      "description": "Find out what an AI agent is by running one with the Claude Agent SDK. Send a prompt and take apart the messages that come back, ask a question the model cannot answer on its own, then give it one tool and watch it read a file to get the answer.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/your-first-agent",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/your-first-agent"
+          }
+        }
+      ]
+    }
+  ]
 }
