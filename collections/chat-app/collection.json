@@ -11,5 +11,302 @@
     "web"
   ],
   "ordered": true,
-  "workshops": []
+  "workshops": [
+    {
+      "name": "the-smallest-chat-app",
+      "title": "Build the smallest chat app",
+      "description": "Put an agent behind a web page. Start a small web server written with FastAPI, see what a chat page and its server say to each other, replace the server's canned reply with a run of the agent, and find out what the application cannot do yet.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/the-smallest-chat-app",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/the-smallest-chat-app"
+          }
+        }
+      ]
+    },
+    {
+      "name": "streaming-to-the-browser",
+      "title": "Stream the reply to the browser",
+      "description": "Show the agent's reply in a web page while the model is still writing it. Watch a reply arrive all at once, turn on partial messages and send each piece of text from the server as an event, read the raw stream in a terminal, then change the page to add each piece to the reply as it arrives.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/streaming-to-the-browser",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/streaming-to-the-browser"
+          }
+        }
+      ]
+    },
+    {
+      "name": "one-conversation-per-visitor",
+      "title": "Keep a conversation for each visitor",
+      "description": "Give a web chat a memory, and each visitor a conversation of their own. Have the page keep an id, keep a connected client on the server for each id, restore what was said when the page is reloaded, open a second visitor beside the first, and pick a conversation up again after the server restarts.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "25m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/one-conversation-per-visitor",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/one-conversation-per-visitor"
+          }
+        }
+      ]
+    },
+    {
+      "name": "showing-the-agent-at-work",
+      "title": "Show the agent at work",
+      "description": "Let a web chat show what its agent is doing. Watch a reply pause while the agent reads files, send the page an event for each tool request and each result, and draw them as lines in the conversation so that a pause reads as work.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/showing-the-agent-at-work",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/showing-the-agent-at-work"
+          }
+        }
+      ]
+    },
+    {
+      "name": "approving-from-the-browser",
+      "title": "Approve from the browser",
+      "description": "Let the person in a web chat decide what its agent may do. Give the agent a tool that writes files and see the write refused, have the server put each request to the page and wait for an answer with a time limit, show the request in the chat with buttons to allow or refuse it, and add a button that stops a run part way through.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "25m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/approving-from-the-browser",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/approving-from-the-browser"
+          }
+        }
+      ]
+    },
+    {
+      "name": "plugging-in-your-tools",
+      "title": "Plug in your tools",
+      "description": "Give the assistant behind a web chat tools of the shop's own. Show in the page which tools the agent has, plug in a tool for the stock list and one in front of the orders database, approve each by name, install a skill for refund replies, and see each one used from the chat.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/plugging-in-your-tools",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/plugging-in-your-tools"
+          }
+        }
+      ]
+    },
+    {
+      "name": "coming-back-to-a-conversation",
+      "title": "Come back to a conversation",
+      "description": "Let the people using a web chat find their conversations again. List the sessions the SDK has kept, show them in the page, open an earlier one by its id and carry on after the server has restarted, and branch a conversation into a copy that goes its own way.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/coming-back-to-a-conversation",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/coming-back-to-a-conversation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "showing-usage-and-limits",
+      "title": "Show usage and set limits",
+      "description": "Make a web chat say what it uses, and stop it using too much. Show under the conversation what each turn sent to the model and what it wrote, show how full the conversation's context is, let the person in the chat choose the model, and put a limit on the turns one message can take.",
+      "tags": [
+        "python",
+        "claude",
+        "agents",
+        "fastapi"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "terminal",
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/showing-usage-and-limits",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/showing-usage-and-limits"
+          }
+        }
+      ]
+    }
+  ]
 }

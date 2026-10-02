@@ -1,7 +1,7 @@
 # This repository is a collection of workshops, not a Python package: uv
 # manages the environment the workshops are written, checked and run in.
 # The runtime dependencies are what a learner needs, JupyterLab, the
-# extension and the Claude Agent SDK; the dev group adds the MCP server
+# extension, the Claude Agent SDK and FastAPI; the dev group adds the MCP server
 # and the self-test used while writing. jupyterlab-workshop is pinned
 # once, here, and the dev group's extras resolve to the same release.
 #
@@ -13,6 +13,12 @@
 # several gigabytes across the collections. Every workshop runs on the
 # kernel of this one environment instead, and no manifest declares an
 # `environment` or `install-packages`. OUTLINE.md records the decision.
+#
+# fastapi is what the chat app workshops write their server with. Plain
+# fastapi adds itself and one small package, since the SDK already
+# brings Starlette, uvicorn and Pydantic through `mcp`. Never
+# `fastapi[standard]`, which adds some thirty packages nothing here
+# uses. `just bump-fastapi` moves the pin and the README together.
 [project]
 name = "claude-sdk-workshops"
 version = "0.1.0"
@@ -23,6 +29,7 @@ dependencies = [
     "jupyterlab>=4.6,<5",
     "jupyterlab-workshop==0.15.0",
     "claude-agent-sdk==0.2.163",
+    "fastapi==0.142.2",
 ]
 
 [dependency-groups]

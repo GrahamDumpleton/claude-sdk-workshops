@@ -1,0 +1,66 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: showing-usage-and-limits
+title: Show usage and set limits
+version: 0.1.0
+description: Make a web chat say what it uses, and stop it using too much. Show under the conversation what each turn sent to the model and what it wrote, show how full the conversation's context is, let the person in the chat choose the model, and put a limit on the turns one message can take.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/showing-usage-and-limits
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - { name: shell, size: 0.3, tabs: ['terminal:server'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have made the chat say what it uses and keep within limits.
+  Each turn's `ResultMessage` gave the tokens the model was sent and
+  the tokens it wrote, `get_context_usage()` said how full the
+  conversation is, `set_model()` changed the model in the middle of a
+  conversation, and `max_turns` ended a run that went on too long,
+  with a result the page could report.
+
+  That is the last of these workshops. The application you finish
+  with streams its replies, keeps a conversation for each visitor,
+  shows the agent at work, asks before it changes anything, uses the
+  shop's own tools, lists and reopens its conversations, and shows
+  what it costs.
+
+  [Track cost and usage](https://code.claude.com/docs/en/agent-sdk/cost-tracking)
+  in the SDK's documentation covers the counts in more detail, and
+  [Hosting the Agent SDK](https://code.claude.com/docs/en/agent-sdk/hosting)
+  and [Securely deploying AI agents](https://code.claude.com/docs/en/agent-sdk/secure-deployment)
+  cover what running an application like this for other people takes.
+variables:
+  - name: server_port
+    type: number
+    default: 8108
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-what-a-turn-used.md
+  - pages/03-how-full-the-conversation-is.md
+  - pages/04-choose-the-model.md
+  - pages/05-a-limit-on-a-turn.md
+  - pages/06-what-you-have-built.md

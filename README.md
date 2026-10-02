@@ -171,14 +171,46 @@ about two and three quarter hours in all, with the server in a
 terminal, its source in an editor and the application in a pane beside
 them.
 
-1. **Build the smallest chat app** (`the-smallest-chat-app`)
-2. **Stream the reply to the browser** (`streaming-to-the-browser`)
-3. **Keep a conversation for each visitor** (`one-conversation-per-visitor`)
-4. **Show the agent at work** (`showing-the-agent-at-work`)
-5. **Approve from the browser** (`approving-from-the-browser`)
-6. **Plug in your tools** (`plugging-in-your-tools`)
-7. **Come back to a conversation** (`coming-back-to-a-conversation`)
-8. **Show usage and set limits** (`showing-usage-and-limits`)
+The server is written with [FastAPI](https://fastapi.tiangolo.com),
+and each workshop ships the application as the one before left it, so
+any of them can be taken on its own.
+
+1. **Build the smallest chat app** (`the-smallest-chat-app`, 20
+   minutes). Start a small web server, see what a chat page and its
+   server say to each other, put a run of the agent behind the route
+   that answers a message, and find out what the application cannot do
+   yet.
+2. **Stream the reply to the browser** (`streaming-to-the-browser`, 20
+   minutes). Watch a reply arrive all at once, turn on partial
+   messages and send each piece of text as a server-sent event, read
+   the raw stream in a terminal, and have the page add each piece as
+   it arrives.
+3. **Keep a conversation for each visitor**
+   (`one-conversation-per-visitor`, 25 minutes). Have the page keep an
+   id, keep a connected client on the server for each one, restore
+   what was said when the page reloads, open a second visitor beside
+   the first, and pick a conversation up after the server restarts.
+4. **Show the agent at work** (`showing-the-agent-at-work`, 15
+   minutes). Send the page an event for each tool request and each
+   result, and draw them in the conversation so that a pause reads as
+   work.
+5. **Approve from the browser** (`approving-from-the-browser`, 25
+   minutes). Give the agent a tool that writes, put each request to
+   the page and wait for an answer with a time limit, show it in the
+   chat with buttons to allow or refuse, and add a button that stops a
+   run.
+6. **Plug in your tools** (`plugging-in-your-tools`, 20 minutes). Show
+   in the page which tools the agent has, then plug in a tool for the
+   stock list, one in front of the orders database and a skill for
+   refund replies, and see each used from the chat.
+7. **Come back to a conversation** (`coming-back-to-a-conversation`,
+   20 minutes). List the sessions the SDK has kept, open an earlier
+   one by its id and carry on after a restart, and branch a
+   conversation into a copy that goes its own way.
+8. **Show usage and set limits** (`showing-usage-and-limits`, 20
+   minutes). Show what each turn sent and wrote and how full the
+   conversation is, let the person in the chat choose the model, and
+   put a limit on the turns one message can take.
 
 ## What you need
 
@@ -192,7 +224,8 @@ them.
   in which case every run is billed to that key.
 
 - **[uv](https://docs.astral.sh/uv/)**, and nothing else to install.
-  It fetches Python 3.14, JupyterLab, the extension and the SDK.
+  It fetches Python 3.14, JupyterLab, the extension, the SDK and, for
+  the chat app workshops, FastAPI.
 
 - **macOS or Linux.** Nothing here has been tried on Windows.
 
@@ -201,12 +234,13 @@ them.
 Every step that matters calls the model. With a subscription login
 nothing is charged per run, and the runs count against your plan's
 usage limits like any other use of Claude. The workshops are built to
-use little: they run on Haiku, the smallest model, except in the two
-places a workshop is about a larger one, and they keep each request
-small. A workshop makes two to seven small runs: the ten foundations
-workshops about forty between them, and the nine extending workshops
-about forty more. The largest are in the two workshops that have an
-agent read ten short files.
+use little: they run on Haiku, the smallest model, except in the
+three places a workshop is about a larger one, and they keep each
+request small. A workshop makes two to seven small runs: the ten
+foundations workshops about forty between them, the nine extending
+workshops about forty more, and the eight chat app workshops about
+thirty five. The largest are in the two workshops that have an agent
+read ten short files.
 
 Anthropic does not allow a third party to offer claude.ai login or its
 rate limits in a product of their own. Running these workshops, and
@@ -222,6 +256,11 @@ and gives it only the tools the step needs, and the foundations
 workshops explain how that is done and why. The extension shows what a
 workshop is allowed to do, and asks, before it runs anything.
 
+The chat app workshops also start a web server on your machine, in a
+terminal you can see. It listens on `127.0.0.1` only, so nothing
+outside the machine can reach it, and each workshop ends by stopping
+it.
+
 ## Run the workshops
 
 ### Straight from this repository
@@ -232,7 +271,7 @@ catalog. Nothing is cloned and nothing is installed that stays. Run it
 in a shell where `claude` is logged in:
 
 ```
-uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" jupyter-workshop launch --root ~/training --catalog https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
+uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" --with "fastapi==0.142.2" jupyter-workshop launch --root ~/training --catalog https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
 ```
 
 What each part is for:
@@ -244,6 +283,11 @@ What each part is for:
   the workshops are written and tested against. Do not leave it out.
   The notebooks run in this environment, and without the SDK the first
   cell of every workshop fails on its import.
+
+- `--with "fastapi==0.142.2"` adds FastAPI, which the chat app
+  workshops write their server with. It is small: the SDK already
+  brings the web server and the other libraries FastAPI is built on.
+  Leave it out only if you will not take those workshops.
 
 - `--root ~/training` is a directory of your own to keep the workshops
   in. It is created if it is not there.
@@ -262,14 +306,14 @@ its index in place of the catalog. Repeat `--collection` to list
 several:
 
 ```
-uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" jupyter-workshop launch --root ~/training --collection https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/foundations/collection.json
+uvx --python 3.14 --from "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" --with "fastapi==0.142.2" jupyter-workshop launch --root ~/training --collection https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/collections/foundations/collection.json
 ```
 
 To have a shorter command to come back to, install the same thing as a
 uv tool once, and launch with it from then on:
 
 ```
-uv tool install --python 3.14 "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163"
+uv tool install --python 3.14 "jupyterlab-workshop[lab]" --with "claude-agent-sdk==0.2.163" --with "fastapi==0.142.2"
 jupyter-workshop launch --root ~/training --catalog https://raw.githubusercontent.com/GrahamDumpleton/claude-sdk-workshops/main/catalog.json
 ```
 
@@ -286,17 +330,17 @@ uv run --no-dev jupyter lab --config=jupyter_lab_config.py
 
 Run from the checkout, the workshops appear under Installed in the
 workshop browser, grouped under each collection and numbered in the
-order to take them. The environment has the SDK at the release
-[pyproject.toml](pyproject.toml) pins.
+order to take them. The environment has the SDK and FastAPI at the
+releases [pyproject.toml](pyproject.toml) pins.
 
 ### From your own JupyterLab
 
 With the extension already installed in a JupyterLab of your own, the
-workshops also need the SDK in the environment that JupyterLab's
-default kernel runs in:
+workshops also need the SDK, and for the chat app workshops FastAPI,
+in the environment that JupyterLab's default kernel runs in:
 
 ```
-pip install "claude-agent-sdk==0.2.163"
+pip install "claude-agent-sdk==0.2.163" "fastapi==0.142.2"
 ```
 
 Then, in the workshop browser, choose "Collections…" and enter the raw
@@ -320,11 +364,12 @@ AGENTS.md                 guidance for agents writing the workshops
 CLAUDE.md                 the single line @AGENTS.md
 OUTLINE.md                the design of the collections
 Justfile                  every common task, and the order of each collection
-pyproject.toml, uv.lock   the uv project: JupyterLab, the extension and the SDK, pinned
+pyproject.toml, uv.lock   the uv project: JupyterLab, the extension, the SDK and FastAPI, pinned
 jupyter_lab_config.py     the local start: opens the browser on the catalog and collections
 catalog.json              names every collection, written by `just index`
 collections/<name>/       the ordered index of one collection, written by `just index`
-workshops/<name>/         one workshop: workshop.yaml, pages/ and files/
+workshops/<name>/         one workshop: workshop.yaml, pages/ and files/, and for a
+                          chat app workshop checks/, the scripts behind its checks
 reference/                git submodules, read by agents, at the pinned releases:
   jupyterlab-workshop       the extension's docs, examples and source
   claude-agent-sdk-python   the SDK's source, examples and changelog
@@ -371,3 +416,7 @@ CI lints and does not self-test, since a runner has no Claude login.
   release named in the commands in this README. The SDK
   changes quickly, so read its changelog and retest the workshops
   after a bump.
+
+- `just bump-fastapi <version>` pins a new FastAPI release and
+  rewrites the release named in the commands in this README. Only the
+  chat app workshops use it.

@@ -1,0 +1,63 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: approving-from-the-browser
+title: Approve from the browser
+version: 0.1.0
+description: Let the person in a web chat decide what its agent may do. Give the agent a tool that writes files and see the write refused, have the server put each request to the page and wait for an answer with a time limit, show the request in the chat with buttons to allow or refuse it, and add a button that stops a run part way through.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/approving-from-the-browser
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 25m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - { name: shell, size: 0.3, tabs: ['terminal:server'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have put the person in the chat in charge of what the agent
+  changes. With `can_use_tool` the SDK calls a function of yours
+  before a tool that needs approval runs. Yours refuses anything but a
+  notice outright, sends the page an event describing the rest, and
+  waits on a future that a second route completes when a button is
+  pressed, or gives up after a time limit. A third route calls the
+  client's `interrupt()` to stop a run part way through.
+
+  Next is **Plug in your tools**, which gives the assistant tools of
+  the shop's own: the stock list, the orders and a skill for refunds.
+
+  [Handle approvals and user input](https://code.claude.com/docs/en/agent-sdk/user-input)
+  in the SDK's documentation covers the callback and what it may
+  return, and [Configure permissions](https://code.claude.com/docs/en/agent-sdk/permissions)
+  says which calls reach it.
+variables:
+  - name: server_port
+    type: number
+    default: 8105
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-something-to-write.md
+  - pages/03-a-question-for-the-page.md
+  - pages/04-a-route-for-the-answer.md
+  - pages/05-ask-in-the-chat.md
+  - pages/06-a-way-to-stop.md

@@ -7,10 +7,11 @@ before adding a workshop, and update it when one is added, changed or
 dropped: the status table at the end records where each workshop
 stands, and the open questions section shrinks as they are settled.
 
-The first two collections are written, and their entries below say
-what was built. The third is designed to the level of what each
-workshop is for, and its entries are filled out, with the user, before
-its first workshop is written.
+All three collections are written, and their entries below say what
+was built. The third was written on 2026-10-02 at the user's request,
+without its entries being filled out with him first, as the second
+had been. He reviews each collection in JupyterLab before it is
+committed.
 
 ## What this repository is
 
@@ -87,7 +88,13 @@ is checked against the pinned release before it is taught.
   workshop explains and no workshop changes.
 
 - https://github.com/anthropics/claude-agent-sdk-demos for complete
-  applications, read for the chat app collection and not taught from.
+  applications. Listed for whoever extends the chat app collection: it
+  was written from the SDK's documentation and source, and the demos
+  were not read for it.
+
+- FastAPI's documentation at https://fastapi.tiangolo.com, for the
+  server the chat app collection is written with, and its page on
+  server-sent events in particular.
 
 - The Model Context Protocol's own documentation at
   https://modelcontextprotocol.io for what MCP is, beyond what the SDK's
@@ -358,6 +365,65 @@ written to these.
   `tools=["ToolSearch"]` they were deferred, the model looked one up
   and called it, and the run took a turn more. The `ToolSearch` tool
   is about 900 tokens itself.
+
+Found while writing the chat app collection, on the same release,
+with FastAPI 0.142.2 and uvicorn 0.54.0. The entries of that
+collection are written to these.
+
+- **A client can be used from one request after another.** A
+  `ClaudeSDKClient` connected in one request answered in later ones
+  and was disconnected from a `lifespan` function at shutdown, each a
+  different task. The caveat in the client's docstring about using it
+  from one async context does not bite on the pinned release, where
+  the reader runs as a detached task.
+
+- **The page can choose the session's id.** With `session_id` set to
+  a UUID the session and its transcript took that id, and a later
+  client given the same id with `resume` carried the conversation on.
+  `get_session_info()` says whether the SDK has a transcript for an
+  id, and `get_session_messages()` returns an empty list for one it
+  does not know.
+
+- **A turn limit on a client ends the turn, not the conversation.**
+  The result had the subtype `error_max_turns`, nothing was raised,
+  and the next message started a new turn that ran normally.
+
+- **An interrupt ends a turn with `error_during_execution`.** The
+  stream ended with that result, and the client answered the next
+  message in the same session.
+
+- **A request that goes away takes a `query()` run with it.** When
+  the browser closed the connection, FastAPI cancelled the route, and
+  the Claude Code process behind `query()` was gone within seconds,
+  with no result. A turn run as a task of its own, as from workshop
+  3, finished and was recorded.
+
+- **FastAPI keeps a quiet stream alive.** It sends a comment line
+  every fifteen seconds while a route has nothing to yield, and does
+  not cancel the route's generator to do it.
+
+- **An unapproved tool of your own goes to the callback.** With
+  `can_use_tool` set, a call to an SDK MCP tool that was not in
+  `allowed_tools` was put to the callback. The `Skill` tool was not.
+
+- **Changing model leaves a mark in the transcript.** After
+  `set_model()` the transcript holds two user messages wrapped in
+  tags, the `/model` command and its output, which
+  `get_session_messages()` returns with the rest. Workshop 8 filters
+  them out of what the page is shown.
+
+- **A fork needs no model.** `fork_session()` copied a transcript
+  under a new id, with a title ending "(fork)", and a client resumed
+  the copy like any session.
+
+- **A request with project settings is several thousand tokens.**
+  With the two tools, the skill and `setting_sources=["project"]`,
+  the first request of a turn was about 8,600 tokens, where the same
+  application without them sent under two thousand.
+
+- **Haiku narrates whatever it is told.** Told to give the answer
+  only, it still often wrote a sentence about what it was going to do
+  before it used a tool. The pages are written to either case.
 
 ## Shape of the foundations collection
 
@@ -1341,8 +1407,9 @@ the ways to stay small that the collection has shown.
 - **`Bash`.** No workshop here gives the agent a shell. The points
   about approval and hooks are made with `Write`.
 
-- **Todo tracking.** Fits the chat app, where there is somewhere to
-  show it.
+- **Todo tracking.** It would fit a chat application, where there is
+  somewhere to show the list. The chat app collection, as written,
+  leaves it out as well.
 
 - **Sandbox settings, and running with all permissions.** Held for
   the later collection on running an agent as a service.
@@ -1350,10 +1417,10 @@ the ways to stay small that the collection has shown.
 ## Shape of the chat app collection
 
 One ordered collection that builds one application, a chat with the
-shop's assistant in a browser. Unlike the other two it accumulates:
-each workshop starts from the application as the one before left it.
-Each still ships the whole application as it stands at its start, so
-any workshop can be taken on its own.
+shop's assistant for its staff, in a browser. Unlike the other two it
+accumulates: each workshop starts from the application as the one
+before left it. Each still ships the whole application as it stands at
+its start, so any workshop can be taken on its own.
 
 **A chat that works** (1 to 3). A page and a server that answers, the
 reply streamed as it is written, and a conversation for each visitor.
@@ -1361,31 +1428,88 @@ reply streamed as it is written, and a conversation for each visitor.
 **A chat you can trust** (4 and 5). The agent's tool use shown as it
 happens, and approval asked in the browser, with a way to stop a run.
 
-**A chat worth using** (6 to 8). The tools, server and skill from the
-extending collection plugged in, conversations listed and resumed, and
-usage shown with limits set.
+**A chat worth using** (6 to 8). The tools, the database and the skill
+from the extending collection plugged in, conversations listed and
+reopened, and usage shown with limits set.
 
-About twenty minutes each, two and three quarter hours in all.
+Fifteen to twenty five minutes each, two and three quarter hours in
+all. Between them the eight workshops make about thirty five model
+calls in one pass, counting the login check each opens with. All are
+on Haiku except one, the run in workshop 8 that follows the page's
+choice of Sonnet, since choosing the model is that page's subject.
 
-The format is terminal and files with a web pane: the server runs in a
-terminal, its source is open in an editor, and the application is
-shown beside them in a pane opened by `url-open`, on a port held in a
-variable the learner can change if it is taken. The learner never
-types code: each step changes a file through an action and restarts
-the server.
+**The format.** Terminal and files with a web pane. The application is
+two files, `app.py` and `page.html`, open in an editor area on the
+left. Below them the server runs in a terminal named `server`. On the
+right is the application itself, in a pane opened by `url-open`. The
+learner never types code: each step changes a file through an
+`editor-insert` or `editor-replace` action, which shows what it will
+insert, and the server restarts itself.
 
-The server is written with FastAPI and run with `uvicorn`. The user
-chose it on 2026-10-02 over plain Starlette, which had been the
-proposal: it is the framework a Python developer is most likely to
-know and to use afterwards, and it costs little here.
+**The application is staged.** Stage 0 is what workshop 1 starts from,
+and stage n is the application as workshop n leaves it, so workshop n
+ships stage n-1 under `files/` and its editor actions have to produce
+stage n exactly. That was checked two ways for every workshop: by
+applying the actions to the shipped files outside JupyterLab and
+comparing with the next stage, and by comparing the workspace left by
+a self-test with it. The final application is under three hundred
+lines of Python and about two hundred of HTML and script.
+
+**The server restarts itself.** It is started with `uvicorn ... --reload`,
+so saving `app.py` restarts it, and a step that changes the server
+needs no stop and start. Where a page makes several edits to `app.py`,
+all but the last carry `:save: false`, so the server restarts once and
+never on a half changed file. A check after the saving edit waits
+until the server's start time is later than the file's modification
+time, which is also what holds the self-test back until the new code
+is running. `page.html` is read from disk on every request and needs
+no restart.
+
+**The server runs on JupyterLab's Python.** No workshop has an
+environment of its own, and a terminal does not reliably find the
+Python that has the SDK: a shell start-up file that activates conda,
+or pyenv, can put another first. So the welcome page captures
+`sys.executable` from the hidden kernel into a variable,
+`app_python`, with `kernel-execute`, and every command uses it.
+
+**A question in the address drives the chat.** The page asks whatever
+is in `?ask=` as it loads, as several chat applications do. A
+`url-open` action can therefore put a question to the real page, in
+the pane, and the self-test, which is a real browser, does the same.
+From workshop 3 the page skips a question its conversation has
+already been asked, so a reload does not repeat a model call, which
+means no two steps of a workshop may ask the same thing in one
+conversation. `?new` starts a new conversation, and workshop 7 adds
+`?c=<id>` and `?branch=<id>`, and workshop 8 `?model=<name>`.
+
+**Checks are scripts that ask the server.** The server keeps a short
+record of each run since it started, the session, how it ended, the
+turns, the tools called, and reports it at `/status`. Each check is a
+Python file under the workshop's `checks/` directory, run with the
+`script` substrate, which reads `/status`, `/openapi.json` or the
+files in the workspace and calls no model. A check that follows a
+question waits, up to two minutes, for the run to be recorded. One
+helper, `checks/_server.py`, is the same in all eight.
+
+**Only what an action can do is checked.** The self-test cannot click
+inside the pane, so nothing a page gates on needs a click there.
+Approval is gated on an answer being recorded, of any kind, and the
+callback gives up after forty five seconds, which is the answer the
+self-test gets. Stopping a run is left to the learner, with a check
+that reports how the run ended and passes either way. Allow, Refuse
+and Stop were each exercised in a browser against the finished stage.
+
+**FastAPI.** The server is written with FastAPI and run with
+`uvicorn`. The user chose it on 2026-10-02 over plain Starlette: it is
+the framework a Python developer is most likely to know and to use
+afterwards, and it costs little here.
 
 - The SDK already brings Starlette, uvicorn and Pydantic, through its
   dependency on the `mcp` package, so `fastapi` adds itself and one
-  small package. It is added to `pyproject.toml`, pinned, when the
-  first chat app workshop is written, and never as
-  `fastapi[standard]`, which pulls in about thirty packages the
-  workshops have no use for. The README's `uvx` command gains a
-  second `--with` for it then.
+  small package. It is pinned in `pyproject.toml`, at 0.142.2, and
+  never as `fastapi[standard]`, which pulls in about thirty packages
+  the workshops have no use for. The README's commands name it with a
+  second `--with`, and `just bump-fastapi` moves both.
 
 - A route declares its request body as a Pydantic model, and FastAPI
   parses and checks the JSON before the function runs. The first
@@ -1394,65 +1518,236 @@ know and to use afterwards, and it costs little here.
 - A streamed reply is a route with
   `response_class=EventSourceResponse`, from `fastapi.sse`, that
   yields: each item is sent to the browser as one `data:` line of a
-  server-sent event stream. That arrived in FastAPI 0.135.0. A route
-  that yields what `async for message in query(...)` hands it is
-  close to the SDK's own loop.
+  server-sent event stream. That arrived in FastAPI 0.135.0. The page
+  reads it with `fetch` and a stream reader, since the browser's
+  `EventSource` can only make a `GET`.
 
-- The page FastAPI generates at `/docs` lets a route be tried from
-  the browser, which the first workshop can use before its own page
-  exists.
+**What the pane keeps, and who the visitor is.** The user raised this
+on 2026-10-02 for workshop 3, which wants two chats open at once.
+JupyterLab's HTML viewer loads its file again every time its tab is
+brought back into view (jupyterlab/jupyterlab#19966, open), and a chat
+that did the same would come back empty on every switch between tabs,
+which would force the two chats to sit side by side. It was checked
+the same day, without the model: a small page that shows when it was
+loaded, what cookie it was sent and what it had stored, opened in
+panes of a workshop on JupyterLab 4.6.4 and the pinned extension, in
+headless Chromium.
 
-Checked without the model on 2026-10-02: FastAPI 0.142.2 ran on Python
-3.14 beside the Starlette 1.7.0 the SDK brings, with a JSON route, a
-rejected body and a streamed route. Whether a terminal the extension
-opens finds the project environment's Python is still to be checked.
+- A `url-open` pane is not the HTML viewer. It is a plain iframe, and
+  it kept its page when its tab was hidden behind another and shown
+  again, by a click on the tab and from code: the same load time, the
+  text typed into it still in the box, a count held in its script
+  unchanged. Opening another pane to its right did not reload it
+  either. So the two chats of workshop 3 are tabs of one area.
+
+- The pane does load its page again when its `url-open` action runs
+  again, which is what the action is for, and when the browser page
+  reloads. Every question a step asks therefore reloads the page, and
+  from workshop 3 on the page comes back with its conversation,
+  fetched from the server, which reads it from the session's
+  transcript.
+
+- Two panes on one address are one visitor. They were sent the same
+  cookie and shared `sessionStorage` and `localStorage`, as two tabs
+  of one browser would.
+
+- A cookie cannot be relied on. The pane is a frame inside JupyterLab,
+  and the browser kept the server's cookie only when the pane's host
+  name was the one JupyterLab was opened on. Learners arrive both
+  ways: `jupyter lab`, which `just lab` runs, opens the browser on
+  `localhost`, while `jupyter-workshop launch`, the README's `uvx`
+  route, and the self-test open it on `127.0.0.1`.
+
+- `localStorage` worked in every case, and a pane on `localhost` and
+  a pane on `127.0.0.1` each had their own.
+
+What was built on that: the page makes up a UUID for its conversation,
+keeps it in `localStorage` and sends it with every message, and
+workshop 3 says in a hint why it is not a cookie. The first chat is
+opened on `127.0.0.1` and the second visitor on `localhost`. Chromium
+only was tried. Safari and Firefox have rules of their own for storage
+in a frame from another site, and neither has been tried: see the open
+questions.
 
 ## The chat app workshops
 
-These entries are one step short of the extending entries: they say
-what each workshop adds. The collection is designed in detail, with
-the user, before it is written.
+### 1. `the-smallest-chat-app`: Build the smallest chat app
 
-1. **`the-smallest-chat-app`: Build the smallest chat app.** A page
-   with a box and a server with one route that calls `query()` and
-   returns the reply. No memory, no streaming. What a web application
-   around an agent has to do, and what this one does not do yet.
+The three pieces of a chat application, a page, a server and the
+agent, put together in their smallest form. It ships a server with a
+route that sends back what it is sent, and a page that posts to it.
+The learner starts the server, opens the page beside it, and reads
+both. Four edits then put the agent behind the route: the SDK's
+names, the options, a function that says what the server keeps of
+each run, and the route itself, which runs `query()` and returns the
+result's text. A question whose answer is only in a shipped file
+shows the agent at work, and a second, "What did I just ask you?",
+shows that every message starts a session of its own. The last page
+lists what is missing and which workshop adds it.
 
-2. **`streaming-to-the-browser`: Stream the reply to the browser.**
-   Partial messages carried to the page as they arrive, and the page
-   appending them. Why a streamed response, and what the server holds
-   open while the agent works.
+- Format: terminal and files with a web pane. The checks read the
+  server's status: that the run succeeded, took at least two turns and
+  gave the closing time from the file, and that two runs had two
+  sessions. A diagram of the three pieces opens from the welcome page.
 
-3. **`one-conversation-per-visitor`: Keep a conversation for each
-   visitor.** A `ClaudeSDKClient` per browser session, with its life
-   tied to the visitor's. What to keep in the server's memory and what
-   the session on disk already holds.
+- Model calls: three, the login check and two questions.
 
-4. **`showing-the-agent-at-work`: Show the agent at work.** Tool calls
-   and their results sent to the page and drawn as they happen, so a
-   pause reads as work.
+- Source: `quickstart`, `hosting` (the subprocess model), the
+  `query()` section of `python`, and FastAPI's own tutorial.
 
-5. **`approving-from-the-browser`: Approve from the browser.** The
-   `can_use_tool` callback waits on a dialog in the page, and a stop
-   button calls `interrupt()`. How a callback on the server waits for
-   a person in a browser.
+### 2. `streaming-to-the-browser`: Stream the reply to the browser
 
-6. **`plugging-in-your-tools`: Plug in your tools.** The stock tool,
-   the orders database and the refund skill from **Extending an agent
-   with the Claude Agent SDK**, added to the application's options,
-   with the tool list shown in the page.
+A longer reply arrives all at once, after three dots. The server is
+then changed in five edits: `include_partial_messages=True`, the
+`StreamEvent` name, a function `events_for()` that turns each message
+of a run into small dictionaries for the page, `text` and `done`, the
+`EventSourceResponse` import, and a route that yields. The raw stream
+is read with `curl` in a second terminal before the page can read it,
+so that the `data:` lines are seen as they are. The page then gains a
+reader for the stream and a `send()` that adds each piece to the
+reply. The last page says what a streamed response holds open.
 
-7. **`coming-back-to-a-conversation`: Come back to a conversation.** A
-   list of past sessions, a past one resumed after the server restarts,
-   and a fork.
+- Format: as workshop 1, with a second terminal, `client`, beside the
+  first. The checks read the count of text events the server kept for
+  each run, which must be at least two, and FastAPI's description of
+  the route, which must say it answers with an event stream. A
+  diagram of a streamed reply opens from the last page.
 
-8. **`showing-usage-and-limits`: Show usage and set limits.** Tokens
-   and context use shown per turn, a model picker using `set_model()`,
-   and a turn limit, so the application can be left running.
+- Model calls: four.
 
-- Source for all eight: `streaming-output`, `streaming-vs-single-mode`,
-  `sessions`, `user-input`, `todo-tracking`, `cost-tracking`, the
-  `ClaudeSDKClient` section of `python`, and the demos repository.
+- Source: `streaming-output`, `examples/include_partial_messages.py`,
+  and FastAPI's page on server-sent events.
+
+### 3. `one-conversation-per-visitor`: Keep a conversation for each visitor
+
+The page makes up an id and sends it with every message, and the
+server expects one. A `Conversation` class then holds a
+`ClaudeSDKClient` for each id: it starts the session under the page's
+id with the `session_id` option, or resumes it when the SDK already
+has a transcript under that id, keeps turns in order with a lock, and
+runs each turn as a task that puts its events on a queue, so that a
+turn finishes whether or not its page is still listening. Two
+questions show one session across two requests. A route that reads
+the transcript with `get_session_messages()` gives the page its
+history back after a reload. A second visitor is opened in a second
+pane, on the other host name. A `lifespan` function closes every
+client when the server stops, and a question asked after the restart
+that edit causes is answered from the resumed session.
+
+- Format: as workshop 1, with two panes as tabs of the chat area. The
+  checks read the session ids of the runs, the count of conversations
+  the server holds, the `resumed` flag of the run after the restart,
+  and what the history route returns. A diagram of what is kept where
+  opens from the page on the second visitor.
+
+- Model calls: five.
+
+- Source: `sessions`, `hosting` (long-running sessions),
+  `streaming-vs-single-mode`, and the `ClaudeSDKClient` section of
+  `python`.
+
+### 4. `showing-the-agent-at-work`: Show the agent at work
+
+A question that takes several tool calls shows a pause with nothing
+in it. `events_for()` gains a branch for a `ToolUseBlock` and one for
+a `ToolResultBlock`, sending the tool's name, input and id, and the
+size of the result but not the result. The page draws each request as
+a line above the bubble that is waiting, and marks it when its result
+arrives. The server also keeps the names of the tools each turn
+called, which later checks read.
+
+- Format: as workshop 1. The checks read the turns of the first run
+  and the tools called by the second.
+
+- Model calls: three.
+
+- Source: `agent-loop` and `streaming-output`.
+
+### 5. `approving-from-the-browser`: Approve from the browser
+
+The agent is given `Write`, with `permission_mode="default"`, and a
+request for a notice is refused because nobody can be asked. A method
+of `Conversation` then becomes the `can_use_tool` callback: it
+refuses any tool but `Write` and any path outside the `notices`
+directory, and otherwise makes an `asyncio` future, sends the page an
+`approval` event, and waits on the future for at most forty five
+seconds. A second route completes the future. The page draws the
+request as a card with Allow and Refuse. A third route calls the
+client's `interrupt()`, behind a Stop button.
+
+- Format: as workshop 1. The checks read that the first run asked for
+  `Write` and no file was written, that the second run recorded an
+  answer of some kind, and how the third ended. A diagram of one
+  approval opens from the page on the route.
+
+- Model calls: four. Under the self-test nobody answers, so the
+  approval step takes the full forty five seconds.
+
+- Source: `user-input`, `permissions`, and
+  `examples/tool_permission_callback.py`.
+
+### 6. `plugging-in-your-tools`: Plug in your tools
+
+The stock tool, the orders tool and the refund skill of the extending
+collection are shipped ready, in `shop_tools.py` and
+`skills/refund-reply/SKILL.md`, and plugged in. The page first gains a
+line that names the model and the tools, from the `init` message that
+opens every run. The stock tool then needs `mcp_servers` and its name
+in `allowed_tools`, the orders tool its name beside it, and the skill
+a copy under `.claude/skills`, `"Skill"` in `tools`,
+`setting_sources=["project"]` and its name in `skills`. Each is used
+from the chat, and drawn there with no change to the page.
+
+- Format: as workshop 2, with the two shipped files open beside the
+  application's own. The checks read the tools each run called and
+  look in the reply for a fact only the tool or the skill has: a
+  stock code, a customer's name, the returns desk reference.
+
+- Model calls: five.
+
+- Source: `custom-tools`, `skills`, `claude-code-features`, and
+  workshops 1, 3 and 5 of the extending collection.
+
+### 7. `coming-back-to-a-conversation`: Come back to a conversation
+
+The page learns to take a conversation's id from its address, and a
+conversation is started under an id chosen on the welcome page. A
+route lists the SDK's sessions for the server's directory with
+`list_sessions()`, and the page shows them as links. A second
+conversation is started, and the first opened again by its id, which
+the server resumes from its transcript since it restarted in between.
+A route then copies a conversation with `fork_session()`, and a
+branch of the first conversation is asked something the original
+never sees.
+
+- Format: as workshop 1. The checks read the session of each run and
+  compare what the history route returns for the original and for the
+  branch.
+
+- Model calls: five.
+
+- Source: `sessions`, and the session functions in `python`.
+
+### 8. `showing-usage-and-limits`: Show usage and set limits
+
+The `done` event gains what the turn sent the model, the three input
+counts added together, and what it wrote, and the page shows them
+under the conversation. `get_context_usage()` adds how full the
+context is. A menu in the page chooses between Haiku and Sonnet
+through a route that calls `set_model()`, and a turn is run on
+Sonnet. `max_turns` is lowered to two, a run is ended by it and
+reported by the page as `error_max_turns`, and the limit is put back.
+The last page reads the finished application once more and says what
+an application for other people would add.
+
+- Format: as workshop 1. The checks read the token count, the
+  context figure and the model of each run, and that the limited run
+  ended with `error_max_turns`.
+
+- Model calls: five, one of them on Sonnet.
+
+- Source: `cost-tracking`, `agent-loop`, `hosting`,
+  `secure-deployment`, and `examples/max_budget_usd.py`.
 
 ## Topics the chat app collection leaves out
 
@@ -1466,7 +1761,25 @@ the user, before it is written.
   hosts are a later collection.
 
 - **A front end framework.** The page is plain HTML and a little
-  JavaScript, since the subject is the server side.
+  JavaScript, since the subject is the server side. Replies are shown
+  as plain text, with no Markdown rendered.
+
+- **Closing idle conversations.** Every conversation the server holds
+  is a Claude Code process, and it holds each until it stops.
+  Workshops 3 and 8 say what an application would do about that, and
+  do not do it.
+
+- **Two messages at once.** A lock keeps a conversation's turns in
+  order. Nothing tells the page that a second message is waiting, and
+  nothing stops two requests racing to connect the same new
+  conversation.
+
+- **The agent's own questions.** `AskUserQuestion`, which the
+  extending collection covers, is not given to the agent here.
+
+- **Todo tracking.** Held back from the extending collection for
+  this one, and not used: the tasks in the workshops are too short to
+  produce a list.
 
 ## Naming
 
@@ -1755,14 +2068,65 @@ Code, so the command is needed only to log in.
 
 **The web pane.** `url-open` with `pane` shows a page in an iframe in
 the main area and reloads it each time it runs. The chat app workshops
-use it for the application, with the port in a `number` variable.
+use it for the application, with the port in a `number` variable. The
+pane keeps its page while its tab is hidden, unlike a file in the HTML
+viewer, and its cookies depend on the host name JupyterLab was opened
+on; both are set out under "Shape of the chat app collection".
+
+**The chat app layout.** Two columns. The left is split into rows: an
+area named `code` listing `app.py` and `page.html`, and below it the
+`server` terminal at three tenths of the height, with a second
+terminal, `client`, beside it in the two workshops that run a command
+of their own. The right column is a placeholder named `chat`, which
+the first `url-open` fills. A diagram opened with `:area: code` joins
+the editor tabs, and moves to the chat area when the layout is next
+applied, which is harmless.
+
+**Editing a file from a page.** `editor-insert` puts its body before
+the line holding the first match, or after it with
+`:position: after`, and ends it with one newline unless the body
+already ends in one. So a body that must be followed by one blank
+line ends in two, and one followed by two ends in three.
+`editor-replace` swaps the first match for the body as written, and
+with `:regex: true` a pattern can span lines, which is how a whole
+function is replaced. An option's value loses its leading spaces, so
+a match on an indented line is written as a pattern beginning `^ +`
+or left without its indentation.
+
+**Script checks.** A `verify` with `:substrate: script` runs a Python
+file from the workshop directory with the server's Python, in the
+workspace, with the variables in its environment, so `server_port`
+arrives as `SERVER_PORT`. Its output is the check's message, pass or
+fail. `:timeout:` has to cover any waiting the script does.
+
+**A capture while the server runs takes a minute.** Setting a
+variable makes every workshop terminal load the new values, and a
+terminal that is running the server cannot until the action gives up
+waiting, about sixty seconds later. So every capture in a chat app
+workshop, the Python path and workshop 7's conversation id, is made
+on the welcome page, before the server is started.
+
+**Actions run back to back under the self-test.** Two `url-open`
+actions on one pane with no check between them leave the first no
+time to do anything. A check that waits for the first to finish goes
+between them.
 
 **Capabilities.** `write-files` and `kernel-exec` for the notebook
 workshops, with `terminal` added for the chat app workshops.
 
 ## Known blockers
 
-None at present.
+- **Lint warns about every pane in the chat app workshops.** The
+  `insecure-url` rule warns that an `http` page cannot be shown in a
+  pane by a JupyterLab served over `https`, and the application's
+  address is `http://127.0.0.1`. The workshops run locally, where
+  JupyterLab is served over `http` too, so the warning does not
+  apply, and it cannot be silenced: each chat app workshop lints with
+  no errors and one such warning for each `url-open`. Browsers do let
+  an `https` page frame `http://127.0.0.1`, which they treat as
+  trustworthy, so the rule, and the extension's own fallback to a new
+  tab, are broader than they need to be. That is for the extension to
+  settle.
 
 ## Open questions
 
@@ -1806,6 +2170,24 @@ None at present.
   learner what the "Memory files" line is if they see it, and
   extending workshop 4 names the setting that turns it off without
   using it.
+
+- **Other browsers, and the chat's id.** The chat app's page keeps
+  its conversation's id in `localStorage` and makes it with
+  `crypto.randomUUID()`. Both were tried in Chromium only, with the
+  pane on the same host name as JupyterLab and on the other. Safari
+  and Firefox treat storage in a frame from another site differently
+  and have not been tried. `crypto.randomUUID()` exists only where
+  the browser counts the page as secure, which it does for
+  `127.0.0.1` and `localhost` and would not for a JupyterLab reached
+  by another name over `http`.
+
+- **Conversations outlive a restart of a workshop.** The SDK files
+  transcripts by the workspace's path and Restart does not remove
+  them, so a learner who takes chat app workshop 7 a second time sees
+  the conversations of the first. The page says so. The login check
+  of the chat app workshops sets `CLAUDE_CODE_SKIP_PROMPT_HISTORY`, so
+  that it at least is not listed as a conversation, which is the one
+  place the variable is used.
 
 - **When the repository goes public.** It is private for now. The
   README's clone command and the collection addresses work for others
@@ -1853,14 +2235,14 @@ Chat app:
 
 | # | Workshop | Status |
 | --- | --- | --- |
-| 1 | `the-smallest-chat-app` | Outlined |
-| 2 | `streaming-to-the-browser` | Outlined |
-| 3 | `one-conversation-per-visitor` | Outlined |
-| 4 | `showing-the-agent-at-work` | Outlined |
-| 5 | `approving-from-the-browser` | Outlined |
-| 6 | `plugging-in-your-tools` | Outlined |
-| 7 | `coming-back-to-a-conversation` | Outlined |
-| 8 | `showing-usage-and-limits` | Outlined |
+| 1 | `the-smallest-chat-app` | Done |
+| 2 | `streaming-to-the-browser` | Done |
+| 3 | `one-conversation-per-visitor` | Done |
+| 4 | `showing-the-agent-at-work` | Done |
+| 5 | `approving-from-the-browser` | Done |
+| 6 | `plugging-in-your-tools` | Done |
+| 7 | `coming-back-to-a-conversation` | Done |
+| 8 | `showing-usage-and-limits` | Done |
 
 The status words:
 
@@ -1872,4 +2254,5 @@ The status words:
 - **Written:** the pages exist and lint is clean.
 
 - **Done:** `just test <name>` is green, and the workshop is in the
-  index and the README.
+  index and the README. For a chat app workshop, lint is clean apart
+  from the `insecure-url` warnings described under Known blockers.

@@ -210,6 +210,20 @@ bump-sdk VERSION:
     uv run python -c 'import pathlib, re, sys; p = pathlib.Path("README.md"); p.write_text(re.sub(r"claude-agent-sdk==[0-9][0-9A-Za-z.]*", "claude-agent-sdk==" + sys.argv[1], p.read_text()))' "{{VERSION}}"
     echo "claude-agent-sdk is at {{VERSION}}; reread the changelog and retest the workshops, since each one calls the release it is pinned to"
 
+# FastAPI is what the chat app workshops write their server with. It is
+# pinned beside the SDK, and named in the same commands in the README,
+# because a learner who runs the workshops with `uvx` has to add it to
+# that environment too. Only plain `fastapi` is wanted: the SDK already
+# brings Starlette, uvicorn and Pydantic, and `fastapi[standard]` adds
+# some thirty packages the workshops have no use for.
+# Pin a new FastAPI release, relock and update the README, e.g. `just bump-fastapi 0.142.2`.
+bump-fastapi VERSION:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    uv add "fastapi=={{VERSION}}"
+    uv run python -c 'import pathlib, re, sys; p = pathlib.Path("README.md"); p.write_text(re.sub(r"fastapi==[0-9][0-9A-Za-z.]*", "fastapi==" + sys.argv[1], p.read_text()))' "{{VERSION}}"
+    echo "fastapi is at {{VERSION}}; retest the chat app workshops"
+
 # No workshop here builds an environment of its own, so the prune is a
 # no-op unless one is added later; it is kept so that a kernelspec left
 # pointing at a removed environment never lingers in the launcher.

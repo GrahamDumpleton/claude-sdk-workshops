@@ -1,0 +1,65 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: one-conversation-per-visitor
+title: Keep a conversation for each visitor
+version: 0.1.0
+description: Give a web chat a memory, and each visitor a conversation of their own. Have the page keep an id, keep a connected client on the server for each id, restore what was said when the page is reloaded, open a second visitor beside the first, and pick a conversation up again after the server restarts.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/one-conversation-per-visitor
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 25m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - { name: shell, size: 0.3, tabs: ['terminal:server'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have given the chat a memory. The page makes up an id for its
+  conversation and sends it with every message. The server keeps a
+  `ClaudeSDKClient` connected for each id, so a second message goes
+  into the session the first one opened, and a second visitor gets a
+  session of their own. What was said is read back from the session's
+  transcript when the page loads, and when the server has lost its
+  client, by restarting, it resumes the session from that transcript.
+
+  Next is **Show the agent at work**, which tells the page when the
+  agent is using a tool, so that a pause reads as work.
+
+  [Work with sessions](https://code.claude.com/docs/en/agent-sdk/sessions)
+  in the SDK's documentation covers session ids, resuming and where
+  transcripts are kept, and
+  [Hosting the Agent SDK](https://code.claude.com/docs/en/agent-sdk/hosting)
+  says what holding a session open costs a server.
+variables:
+  - name: server_port
+    type: number
+    default: 8103
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-an-id-for-the-conversation.md
+  - pages/03-a-client-the-server-keeps.md
+  - pages/04-two-messages-one-conversation.md
+  - pages/05-give-the-page-its-history.md
+  - pages/06-a-second-visitor.md
+  - pages/07-what-a-restart-loses.md

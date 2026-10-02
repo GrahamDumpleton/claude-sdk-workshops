@@ -1,0 +1,72 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: plugging-in-your-tools
+title: Plug in your tools
+version: 0.1.0
+description: Give the assistant behind a web chat tools of the shop's own. Show in the page which tools the agent has, plug in a tool for the stock list and one in front of the orders database, approve each by name, install a skill for refund replies, and see each one used from the chat.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/plugging-in-your-tools
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - name: code
+              tabs:
+                - 'file:app.py'
+                - 'file:page.html'
+                - 'file:shop_tools.py'
+                - 'file:skills/refund-reply/SKILL.md'
+            - size: 0.3
+              split: columns
+              areas:
+                - { name: shell, tabs: ['terminal:server'] }
+                - { tabs: ['terminal:client'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have plugged the shop's own tools into the chat. The stock list
+  and the orders are tools in an SDK MCP server, handed to the agent
+  in `mcp_servers` and approved by name in `allowed_tools`. The refund
+  reply is a skill, found because the session reads project settings,
+  names the skill and has the `Skill` tool. The page shows what the
+  agent has from the `init` message that opens every run, and each
+  call appeared in the chat with no change to the page, because a
+  tool of your own is reported like any other.
+
+  Next is **Come back to a conversation**, which lists the
+  conversations the shop has had and lets one be opened again.
+
+  [Give Claude custom tools](https://code.claude.com/docs/en/agent-sdk/custom-tools)
+  and [Extend agents with skills](https://code.claude.com/docs/en/agent-sdk/skills)
+  in the SDK's documentation cover writing each.
+variables:
+  - name: server_port
+    type: number
+    default: 8106
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-what-the-agent-has.md
+  - pages/03-the-stock-list.md
+  - pages/04-the-orders.md
+  - pages/05-a-skill-for-refunds.md
+  - pages/06-what-plugging-in-took.md

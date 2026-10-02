@@ -1,0 +1,68 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: coming-back-to-a-conversation
+title: Come back to a conversation
+version: 0.1.0
+description: Let the people using a web chat find their conversations again. List the sessions the SDK has kept, show them in the page, open an earlier one by its id and carry on after the server has restarted, and branch a conversation into a copy that goes its own way.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/coming-back-to-a-conversation
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - { name: shell, size: 0.3, tabs: ['terminal:server'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have made the chat's conversations something to come back to.
+  `list_sessions()` gave the server every session the SDK has kept
+  for its directory, each with a title, and the page shows them as
+  links. A link carries a conversation's id, the page takes that id
+  for its own, and the server resumes the session from its transcript
+  as it does after a restart. `fork_session()` copied a conversation
+  under a new id, so that a branch could go on without changing the
+  original.
+
+  Next is **Show usage and set limits**, the last of these workshops,
+  which shows what each turn costs and puts limits on the
+  application.
+
+  [Work with sessions](https://code.claude.com/docs/en/agent-sdk/sessions)
+  in the SDK's documentation covers listing, resuming and forking, and
+  the functions that rename, tag and delete a session.
+variables:
+  - name: server_port
+    type: number
+    default: 8107
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+  - name: first_conversation
+    type: text
+    description: The id of the first conversation of this workshop, chosen on the welcome page
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-conversation-to-come-back-to.md
+  - pages/03-list-them.md
+  - pages/04-start-another.md
+  - pages/05-open-the-first-again.md
+  - pages/06-branch-one.md
+  - pages/07-what-the-list-is.md

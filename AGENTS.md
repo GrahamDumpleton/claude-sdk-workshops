@@ -99,7 +99,9 @@ A set of rules follows from that:
   package bundles the Claude Code binary and installs to about 216 MB,
   so an environment per workshop, the rule in the other workshop
   repositories, would cost several gigabytes here. Notebooks run on the
-  kernel of the JupyterLab environment.
+  kernel of the JupyterLab environment. FastAPI, which the chat app
+  collection writes its server with, is pinned beside the SDK, as
+  plain `fastapi` and never `fastapi[standard]`.
 
 - Capabilities for a notebook workshop are `write-files` and
   `kernel-exec`, and nothing else. Never declare `terminal` in the
@@ -311,6 +313,8 @@ and prefer them over the underlying commands:
   rewrites the release named in the README's commands. The README
   names it because a learner who runs the workshops with `uvx`, with no
   checkout, has to add the SDK to that environment by hand.
+  `just bump-fastapi <version>` does the same for FastAPI, which the
+  chat app workshops write their server with.
 
 The order of a collection lives in the Justfile, as the list of
 workshop names the `index-<collection>` recipe passes to
@@ -475,7 +479,89 @@ sections above:
 
 - Lint every change. Lint must be clean, warnings included, before a
   workshop is considered done, and a workshop is not done until
-  `just test <name>` is green.
+  `just test <name>` is green. The one exception is the `insecure-url`
+  warning on each `url-open` of a chat app workshop, which cannot be
+  avoided for an application served on `http://127.0.0.1`; OUTLINE.md
+  records it under Known blockers.
+
+## The chat app collection
+
+The third collection is not a set of notebooks, and has rules of its
+own beside the ones above. OUTLINE.md, under "Shape of the chat app
+collection", gives the reasons.
+
+- **One application, in stages.** The application is two files,
+  `app.py` and `page.html`. Workshop n ships it under `files/` as
+  workshop n-1 leaves it, and its `editor-insert` and `editor-replace`
+  actions must produce, exactly, what workshop n+1 ships. After
+  changing an action, self-test a copy of the workshop in place and
+  compare the `work/app.py` and `work/page.html` it leaves with the
+  next workshop's `files/`. A change to the application at one stage
+  has to be carried into the `files/` of every later workshop, and
+  into any action there that matches the changed text.
+
+- **The server runs in a terminal, on JupyterLab's Python.** The
+  welcome page captures `sys.executable` into `app_python` with
+  `kernel-execute`, and every command starts with
+  `{{ app_python | shell }}`. Never write a bare `python` or
+  `uvicorn`: a terminal does not reliably find the environment that
+  has the SDK.
+
+- **The server restarts itself.** It is started with
+  `-m uvicorn app:app --port {{ server_port }} --reload`, and each
+  workshop has a port of its own, 8101 to 8108, held in the
+  `server_port` variable. Where a page makes several edits to
+  `app.py`, all but the last carry `:save: false`, so the server
+  restarts once. The check after the saving edit waits for a server
+  that started after the file was saved, which is what keeps the
+  self-test from asking a question of the old one.
+
+- **Capture before the server starts.** Setting a variable makes each
+  workshop terminal load it, and a terminal running the server holds
+  the action up for about a minute. Every `kernel-execute` with
+  `:capture:` goes on the welcome page, above the step that starts
+  the server.
+
+- **A question is asked through the address.** A step puts a question
+  to the chat with `url-open` on the pane and `?ask=` in the address.
+  The page does not repeat a question its conversation has already
+  been asked, so no two steps of a workshop ask the same words in one
+  conversation, and a step that must start clean adds `new` to the
+  address.
+
+- **Checks are scripts that ask the server.** Each check is a Python
+  file under the workshop's `checks/`, run with
+  `:substrate: script`, which reads the server's `/status` route, its
+  `/openapi.json`, or the workspace. None calls the model. A check
+  that follows a question waits for the run to be recorded, and names
+  a `:timeout:` that covers the wait. `checks/_server.py` is the same
+  file in every workshop.
+
+- **Nothing a page gates on needs a click in the pane.** The
+  self-test cannot click inside the application. A step whose point
+  is a click, such as approving a request or stopping a run, has a
+  check that passes whichever way it went and says which. The
+  approval callback's time limit is what answers under the self-test.
+
+- **A check goes between two actions on one pane.** The self-test
+  runs actions back to back, and a second `url-open` on a pane
+  replaces the page before the first has asked anything.
+
+- **The welcome page checks the login with a script.** It runs the
+  shipped `check_login.py` in the terminal, which makes the same one
+  word run as the notebooks' login cell, writes `login.txt` for the
+  check to read, and sets `CLAUDE_CODE_SKIP_PROMPT_HISTORY` so that
+  the run is not listed among the application's conversations.
+
+- **The last page stops the server**, with an `interrupt` on its
+  terminal and a check that nothing answers on the port.
+
+- **What the application's agent may do.** It reads inside the
+  workspace, and writes only through the approval callback, which
+  refuses any tool but `Write` and any path outside the `notices`
+  directory before it asks anyone. From workshop 6 it reads project
+  settings for its skill, with the skill named. The server listens on
+  `127.0.0.1` only.
 
 ## Never run a workshop without checking what it does
 

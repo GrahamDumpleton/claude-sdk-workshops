@@ -1,0 +1,66 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: streaming-to-the-browser
+title: Stream the reply to the browser
+version: 0.1.0
+description: Show the agent's reply in a web page while the model is still writing it. Watch a reply arrive all at once, turn on partial messages and send each piece of text from the server as an event, read the raw stream in a terminal, then change the page to add each piece to the reply as it arrives.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/streaming-to-the-browser
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+    - { name: curl }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - size: 0.3
+              split: columns
+              areas:
+                - { name: shell, tabs: ['terminal:server'] }
+                - { tabs: ['terminal:client'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have streamed a reply to a web page. With
+  `include_partial_messages=True` the run produced a `StreamEvent` for
+  each piece of text the model wrote, the route yielded each piece as
+  it came, FastAPI sent it down a response that stayed open as a
+  server-sent event, and the page read the response a line at a time
+  and added each piece to the reply.
+
+  Next is **Keep a conversation for each visitor**, which gives the
+  chat a memory: a second message that knows about the first.
+
+  [Stream responses in real time](https://code.claude.com/docs/en/agent-sdk/streaming-output)
+  in the SDK's documentation lists the event types, and FastAPI's
+  [server-sent events](https://fastapi.tiangolo.com/tutorial/server-sent-events/)
+  page covers the response this workshop used.
+variables:
+  - name: server_port
+    type: number
+    default: 8102
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-all-at-once.md
+  - pages/03-stream-from-the-server.md
+  - pages/04-read-the-stream-in-the-page.md
+  - pages/05-what-stays-open.md

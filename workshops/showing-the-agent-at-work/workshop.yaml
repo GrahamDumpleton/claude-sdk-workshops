@@ -1,0 +1,62 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: showing-the-agent-at-work
+title: Show the agent at work
+version: 0.1.0
+description: Let a web chat show what its agent is doing. Watch a reply pause while the agent reads files, send the page an event for each tool request and each result, and draw them as lines in the conversation so that a pause reads as work.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/showing-the-agent-at-work
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents, fastapi]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - terminal
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+layout: app
+layouts:
+  app:
+    main:
+      split: columns
+      areas:
+        - areas:
+            - { name: code, tabs: ['file:app.py', 'file:page.html'] }
+            - { name: shell, size: 0.3, tabs: ['terminal:server'] }
+        - { name: chat, size: 0.38, tabs: [] }
+gating: soft
+finish: |
+  You have shown the agent at work. A tool request arrives in the
+  stream as a `ToolUseBlock` in an `AssistantMessage`, and its result
+  as a `ToolResultBlock` in a `UserMessage`. The server now turns each
+  into an event, and the page draws a request as a line and marks it
+  when the result comes back, so the wait between a question and its
+  answer shows what the agent is doing.
+
+  Next is **Approve from the browser**, which lets the agent do
+  something that changes the shop's files, and puts the decision to
+  the person in the chat.
+
+  [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  in the SDK's documentation describes the messages a run is made of,
+  and [Stream responses in real time](https://code.claude.com/docs/en/agent-sdk/streaming-output)
+  shows how a tool call's input can be streamed as well.
+variables:
+  - name: server_port
+    type: number
+    default: 8104
+    description: The port the chat server listens on
+  - name: app_python
+    type: text
+    description: The Python that JupyterLab runs on, which has the SDK installed
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-pause-with-nothing-to-see.md
+  - pages/03-tell-the-page-about-tools.md
+  - pages/04-draw-the-work.md
+  - pages/05-reading-the-lines.md
