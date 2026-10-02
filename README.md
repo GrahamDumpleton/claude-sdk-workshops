@@ -31,7 +31,7 @@ Each collection is a course: its workshops are numbered in the order to
 take them, and the Finish dialog of each offers the next. A
 [catalog](catalog.json) names every collection.
 
-The first workshop is written. The rest of the lists below are the
+The first collection is written. The lists for the other two are the
 plan, from [OUTLINE.md](OUTLINE.md), and each entry is filled in as its
 workshop is written.
 
@@ -49,21 +49,58 @@ half hours in all, each in a live notebook.
    that come back. Then ask a question the model cannot answer on its
    own, give it the `Read` tool, and watch it read a file to get the
    answer.
-2. **Watch the agent loop** (`watching-the-agent-loop`)
-3. **Read what a run cost** (`reading-the-result`)
+2. **Watch the agent loop** (`watching-the-agent-loop`, 15 minutes).
+   What happens between the prompt and the answer. Ask a question that
+   takes several tool calls, then take the run apart: a request from
+   the model is only text, the SDK carries it out and sends the result
+   back in the user's role, every request carries the whole
+   conversation so far, and the loop ends when the model replies
+   without asking for anything.
+3. **Read what a run cost** (`reading-the-result`, 15 minutes). The
+   message that ends every run: how it ended, how many turns and
+   seconds it took, what the token counts and the cache are, what the
+   dollar figure means on a subscription, and where you stand against
+   your plan's limits. Then a run stopped by its turn limit, and the
+   error it comes back as.
 
 **Shaping a run**
 
-4. **Give the agent its instructions** (`giving-the-agent-instructions`)
-5. **Choose a model and how hard it thinks** (`choosing-a-model`)
-6. **Decide what the agent can do** (`deciding-what-it-can-do`)
+4. **Give the agent its instructions**
+   (`giving-the-agent-instructions`, 15 minutes). What a system prompt
+   is. Answer one customer question under a prompt of your own, under
+   the same prompt with one rule changed, and under the `claude_code`
+   preset, and compare what each sent to the model.
+5. **Choose a model and how hard it thinks** (`choosing-a-model`, 15
+   minutes). Run one task that needs two documents read together on
+   Haiku and on Sonnet, and compare turns, tokens, seconds and
+   estimated cost. Then lower `effort`, and turn thinking back on to
+   see what it adds. The one workshop here that leaves the smallest
+   model.
+6. **Decide what the agent can do** (`deciding-what-it-can-do`, 20
+   minutes). Give the agent a tool that writes a file and watch the
+   call be refused. Then approve it with `allowed_tools`, approve it
+   with a permission mode, and take the tool away with
+   `disallowed_tools`, reading what was denied from each result.
 
 **Beyond one question**
 
-7. **Hold a conversation** (`holding-a-conversation`)
-8. **Pick up where you left off** (`picking-up-where-you-left-off`)
-9. **Stream the reply as it is written** (`streaming-the-reply`)
-10. **Get data back, not prose** (`getting-data-back`)
+7. **Hold a conversation** (`holding-a-conversation`, 15 minutes). Two
+   calls to `query()` know nothing of each other. A `ClaudeSDKClient`
+   keeps one session open and remembers, by sending the whole
+   conversation again on each turn. Measure what that costs and how
+   full the context window is.
+8. **Pick up where you left off** (`picking-up-where-you-left-off`, 15
+   minutes). Where a session is kept once the program has gone. List
+   sessions and read one back, resume it from a new run, fork it
+   without changing the original, and delete what you made.
+9. **Stream the reply as it is written** (`streaming-the-reply`, 15
+   minutes). Time a reply that arrives all at once, turn on partial
+   messages and count the events one reply is made of, print the text
+   as it is written, and compare the pieces with the complete message.
+10. **Get data back, not prose** (`getting-data-back`, 15 minutes). Use
+    an agent as a function. Describe the shape you want with a JSON
+    Schema, get back a dictionary that matches it, and answer
+    questions from it in ordinary Python.
 
 ### Extending an agent with the Claude Agent SDK
 
@@ -120,7 +157,8 @@ nothing is charged per run, and the runs count against your plan's
 usage limits like any other use of Claude. The workshops are built to
 use little: they run on Haiku, the smallest model, except in the two
 or three places a workshop is about a larger one, and they keep each
-request small. A workshop makes two to four small runs.
+request small. A workshop makes two to five small runs, and the ten
+foundations workshops about forty between them.
 
 Anthropic does not allow a third party to offer claude.ai login or its
 rate limits in a product of their own. Running these workshops, and

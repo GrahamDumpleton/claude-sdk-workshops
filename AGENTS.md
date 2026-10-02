@@ -176,13 +176,29 @@ time, and it can act on the machine it runs on.
 
 - **Keep the request small.** Give a short `system_prompt` of the
   workshop's own. Leave the `claude_code` preset to the workshop that
-  teaches it: it adds about sixteen thousand tokens to every request.
-  Set `thinking={"type": "disabled"}`: left unset, Haiku reasons before
+  teaches it: it adds about six thousand tokens to every request, and
+  about sixteen thousand with every built-in tool beside it. Set
+  `thinking={"type": "disabled"}`: left unset, Haiku reasons before
   every reply, which made the output of a one line answer about four
-  times the size when it was measured, and puts thinking messages and blocks in the
-  stream that a page would then have to explain. Set `max_turns` to a
-  few more than the step should take, so a run that goes wrong stops.
-  Ship small files: a tool result is input to the next request.
+  times the size when it was measured, and puts thinking messages and
+  blocks in the stream that a page would then have to explain. Ship
+  small files: a tool result is input to the next request.
+
+- **Set `max_turns` well above what the step needs.** It is there to
+  stop a run that goes wrong, and a run that reaches it does not end
+  quietly: the result has an error subtype and `query()` then raises
+  `ResultError`, which in a cell is a traceback. Haiku took twice the
+  turns expected on some runs of some steps. Ten or twelve for a step
+  that should take four is about right. Only the cell that teaches the
+  limit sets it low, inside `try`.
+
+- **Name the permission mode when a tool can change something.** A
+  session with no `permission_mode` starts in a mode chosen by settings
+  and defaults, which is not the same on every account. A cell that
+  gives the agent `Write`, `Edit` or `Bash` passes `permission_mode`
+  explicitly, `"default"` included. Cells whose tools only read inside
+  the workspace leave it out, since those calls need no approval in
+  any mode.
 
 - **Check the login on the welcome page.** With no login the SDK
   yields a result whose `is_error` is true and then raises
@@ -210,6 +226,24 @@ time, and it can act on the machine it runs on.
   with a fact in it that could not be guessed and check that the fact
   appears, which tests that the tool was used and not how the reply was
   phrased.
+
+- **Check what the SDK did, not what the model refrained from.** A
+  model can ask for a tool it was not given, and is told there is no
+  such tool. It can ask for two tools in one reply, or take a turn more
+  than last time. So a check reads what the session was given, what
+  ran, what was denied and what exists on disk afterwards, and never
+  that a tool was not asked for or that a run took an exact number of
+  turns. Counts are checked as "at least".
+
+- **Measure a request by its input, cache counts included.** The
+  tokens a request was sent are `input_tokens`,
+  `cache_creation_input_tokens` and `cache_read_input_tokens` added
+  together, from the `usage` of an `AssistantMessage` for one request
+  or of the `ResultMessage` for the run. A request under about four
+  thousand tokens does not use the cache, so on most cells here the
+  cache counts are zero, and a page that explains the cache says so.
+  To compare what two configurations cost, compare the first request
+  of each, which does not move when a run takes an extra turn.
 
 - **Prose describes what will happen in general.** A page says "the
   agent reads the file and answers", not what the answer is, and never
@@ -375,6 +409,19 @@ sections above:
   value is `None`, or an assignment, when the prose talks about what
   that value is. Print it instead.
 
+- Write the options out in full where a workshop makes one run of each
+  kind, so the learner reads every line. Where the same run is made
+  several times with one option changed, define a function for the run
+  in a cell of its own, which calls nothing, and make each later cell
+  one line, so that what changed is all there is to read. To change one
+  field of options a cell already made, copy them with
+  `dataclasses.replace`.
+
+- Every welcome page after the first workshop's carries a hint saying
+  what the options in the login cell are for, since a learner may start
+  anywhere and the cell uses `setting_sources`, `strict_mcp_config` and
+  `thinking` before any page has explained them.
+
 - A `learner-kernel` check reads what the cell left behind and calls
   nothing. A check that ran the agent again would cost a second model
   call and get a different answer.
@@ -410,6 +457,13 @@ work on the directory itself and leave state behind.
 Here they also run an agent for real, under the user's Claude login.
 Each run spends the user's usage, and the agent acts with whatever
 tools the cell gives it.
+
+Run the self-test on a copy, which is what `just test <name>` does.
+Never pass `--in-place` on a directory under `workshops/`: it leaves
+`work/` and `_workshop/` behind in the checkout, where the user may
+have JupyterLab open on the same workshop, and a second run in place
+does not finish. To read what the cells printed, copy the workshop
+under `scratch/` and test the copy in place.
 
 Before running any of them, read every cell body and every check in the
 workshop. Run them unasked only when everything stays inside the

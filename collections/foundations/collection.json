@@ -46,6 +46,321 @@
           }
         }
       ]
+    },
+    {
+      "name": "watching-the-agent-loop",
+      "title": "Watch the agent loop",
+      "description": "Slow an agent's run down until each step can be seen. Ask a question that takes several tool calls, then take the run apart, to see what a request from the model is, who carries it out, how the result gets back, and why every request is larger than the one before.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/watching-the-agent-loop",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/watching-the-agent-loop"
+          }
+        }
+      ]
+    },
+    {
+      "name": "reading-the-result",
+      "title": "Read what a run cost",
+      "description": "Open the message that ends every agent run. Read how the run ended and how much work it was, what the token counts mean, what the dollar figure is and is not on a subscription, and what comes back when a run is stopped by its turn limit before it finishes.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/reading-the-result",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/reading-the-result"
+          }
+        }
+      ]
+    },
+    {
+      "name": "giving-the-agent-instructions",
+      "title": "Give the agent its instructions",
+      "description": "Find out what a system prompt is and what the choice of one costs. Answer the same customer question under a prompt of your own, under the same prompt with one rule changed, and under the instructions Claude Code itself runs on, then compare what each sent to the model.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/giving-the-agent-instructions",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/giving-the-agent-instructions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "choosing-a-model",
+      "title": "Choose a model and how hard it thinks",
+      "description": "Find out what the choice of model changes. Run one task that needs two documents read together on a small model and on a larger one, and compare the turns, tokens, time and estimated cost of each. Then lower the effort, and turn thinking back on to see what it adds.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/choosing-a-model",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/choosing-a-model"
+          }
+        }
+      ]
+    },
+    {
+      "name": "deciding-what-it-can-do",
+      "title": "Decide what the agent can do",
+      "description": "Find out how an agent's tools are given, approved and withheld. Give an agent a tool that writes a file and watch the call be refused, then allow it by name, allow it with a permission mode, and take the tool away again, reading from each result what was asked for, what was denied and what was written.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/deciding-what-it-can-do",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/deciding-what-it-can-do"
+          }
+        }
+      ]
+    },
+    {
+      "name": "holding-a-conversation",
+      "title": "Hold a conversation",
+      "description": "Find out how an agent remembers what was said. See two separate runs know nothing of each other, then keep a client connected and hold a conversation of two turns on one session, measure what each turn was sent, and read how full the model's context window is.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/holding-a-conversation",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/holding-a-conversation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "picking-up-where-you-left-off",
+      "title": "Pick up where you left off",
+      "description": "Find out where a conversation goes when the program that held it ends. List the sessions the SDK keeps on disk and read one back, resume it from a new run that shares nothing with the first, fork it to try another way forward without changing the original, and delete what you made.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/picking-up-where-you-left-off",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/picking-up-where-you-left-off"
+          }
+        }
+      ]
+    },
+    {
+      "name": "streaming-the-reply",
+      "title": "Stream the reply as it is written",
+      "description": "Find out how to show an answer while the model is still producing it. Time a reply that arrives all at once, turn on partial messages and count the events one reply is made of, print the text piece by piece as it is written, and compare the pieces with the complete message that follows them.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/streaming-the-reply",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/streaming-the-reply"
+          }
+        }
+      ]
+    },
+    {
+      "name": "getting-data-back",
+      "title": "Get data back, not prose",
+      "description": "Find out how to use an agent as a function in a program. Ask for a shop's opening hours and see why a reply written for a person is hard for code to use, then describe the shape you want with a JSON Schema, get back a dictionary that matches it, and answer questions from it in ordinary Python.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/getting-data-back",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/getting-data-back"
+          }
+        }
+      ]
     }
   ]
 }

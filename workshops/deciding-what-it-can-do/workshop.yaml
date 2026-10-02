@@ -1,0 +1,51 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: deciding-what-it-can-do
+title: Decide what the agent can do
+version: 0.1.0
+description: Find out how an agent's tools are given, approved and withheld. Give an agent a tool that writes a file and watch the call be refused, then allow it by name, allow it with a permission mode, and take the tool away again, reading from each result what was asked for, what was denied and what was written.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/deciding-what-it-can-do
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have decided what an agent can do, four ways. `tools` sets
+  which tools exist for it. With nothing more, a call that changes
+  something is refused, and the result lists it in
+  `permission_denials`. `allowed_tools` approves a tool by name,
+  `permission_mode` approves a whole kind of action, and
+  `disallowed_tools` takes a tool away whatever else is set.
+
+  Next is **Hold a conversation**, which leaves single questions
+  behind: how an agent remembers what was said a moment ago, and what
+  remembering costs.
+
+  [Configure permissions](https://code.claude.com/docs/en/agent-sdk/permissions)
+  in the SDK's documentation gives the order the checks are made in
+  and every permission mode.
+variables:
+  - name: notebook
+    type: path
+    default: deciding-what-it-can-do.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-call-that-is-refused.md
+  - pages/03-allow-the-tool.md
+  - pages/04-let-a-mode-decide.md
+  - pages/05-take-a-tool-away.md
+  - pages/06-finish.md

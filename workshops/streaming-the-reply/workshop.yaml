@@ -1,0 +1,50 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: streaming-the-reply
+title: Stream the reply as it is written
+version: 0.1.0
+description: Find out how to show an answer while the model is still producing it. Time a reply that arrives all at once, turn on partial messages and count the events one reply is made of, print the text piece by piece as it is written, and compare the pieces with the complete message that follows them.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/streaming-the-reply
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have streamed a reply. With `include_partial_messages=True`
+  the run produced `StreamEvent` messages while the model was still
+  writing: a message starting, a block starting, the text in many
+  small pieces, and each of them stopping. Printing the pieces as
+  they came showed the reply being written, and joined together they
+  were the same text as the complete `AssistantMessage` that followed.
+
+  Next is **Get data back, not prose**, the last of these workshops,
+  which makes an agent return data in a shape your program asks for.
+
+  [Stream responses in real time](https://code.claude.com/docs/en/agent-sdk/streaming-output)
+  in the SDK's documentation lists the event types and shows how a
+  tool call's input streams in the same way.
+variables:
+  - name: notebook
+    type: path
+    default: streaming-the-reply.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-all-at-once.md
+  - pages/03-the-events-of-one-reply.md
+  - pages/04-print-it-as-it-is-written.md
+  - pages/05-the-same-text-twice.md
+  - pages/06-finish.md

@@ -1,0 +1,52 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: choosing-a-model
+title: Choose a model and how hard it thinks
+version: 0.1.0
+description: Find out what the choice of model changes. Run one task that needs two documents read together on a small model and on a larger one, and compare the turns, tokens, time and estimated cost of each. Then lower the effort, and turn thinking back on to see what it adds.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/choosing-a-model
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have run one task on two models and put the results side by
+  side: what each read, what it answered, and what it took in turns,
+  tokens, seconds and estimated cost. You have lowered `effort` on
+  the larger model, and turned thinking back on for the smaller one
+  to see the reasoning it adds to a run and to the output.
+
+  Next is **Decide what the agent can do**, which gives the agent a
+  tool that changes things and looks at who approves a call before
+  it runs.
+
+  "Choose a model" in the SDK's
+  [configuration](https://code.claude.com/docs/en/agent-sdk/configuration)
+  page lists the names the `model` option takes, and "Effort level"
+  in [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  describes each level.
+variables:
+  - name: notebook
+    type: path
+    default: choosing-a-model.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-task-and-a-way-to-measure-it.md
+  - pages/03-the-same-task-on-a-larger-model.md
+  - pages/04-effort.md
+  - pages/05-thinking.md
+  - pages/06-finish.md

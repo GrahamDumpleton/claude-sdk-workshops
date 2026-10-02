@@ -1,0 +1,56 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: getting-data-back
+title: Get data back, not prose
+version: 0.1.0
+description: Find out how to use an agent as a function in a program. Ask for a shop's opening hours and see why a reply written for a person is hard for code to use, then describe the shape you want with a JSON Schema, get back a dictionary that matches it, and answer questions from it in ordinary Python.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/getting-data-back
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have used an agent as a function. A reply in prose gave your
+  code nothing to hold on to. With `output_format` set to a JSON
+  Schema, the same run returned `structured_output`: a dictionary in
+  the shape you asked for, checked against the schema before it was
+  handed back, which ordinary Python could use at once.
+
+  That is the last of these workshops. You can now run an agent,
+  read everything it reports, shape it with instructions, a model and
+  permissions, hold and resume a conversation with it, stream its
+  replies, and get data back from it.
+
+  **Extending an agent with the Claude Agent SDK** comes next. It
+  gives an agent more to work with: tools you write yourself,
+  services it connects to, your own data, and tighter limits on what
+  it may do.
+
+  [Get structured output from agents](https://code.claude.com/docs/en/agent-sdk/structured-outputs)
+  in the SDK's documentation covers schemas and what happens when
+  the output cannot be made to fit one.
+variables:
+  - name: notebook
+    type: path
+    default: getting-data-back.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-reply-written-for-a-person.md
+  - pages/03-describe-the-shape-you-want.md
+  - pages/04-how-the-agent-produced-it.md
+  - pages/05-use-it-as-data.md
+  - pages/06-finish.md

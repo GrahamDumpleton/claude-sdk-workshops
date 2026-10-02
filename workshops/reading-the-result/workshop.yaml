@@ -1,0 +1,53 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: reading-the-result
+title: Read what a run cost
+version: 0.1.0
+description: Open the message that ends every agent run. Read how the run ended and how much work it was, what the token counts mean, what the dollar figure is and is not on a subscription, and what comes back when a run is stopped by its turn limit before it finishes.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/reading-the-result
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have read a `ResultMessage` from end to end: `subtype` for how
+  the run ended, `num_turns` and `duration_ms` for how much work it
+  was, `usage` for the tokens, and `total_cost_usd` for what those
+  tokens would cost at API prices. You have also stopped a run with
+  `max_turns` and seen that it comes back as a result with an error
+  subtype and no answer, followed by an exception.
+
+  Next is **Give the agent its instructions**, which is about the
+  system prompt: what it is, how it changes what an agent does, and
+  what the choice of one adds to every request.
+
+  [Track cost and usage](https://code.claude.com/docs/en/agent-sdk/cost-tracking)
+  in the SDK's documentation covers the usage fields, and "Handle the
+  result" in [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  lists every way a run can end.
+variables:
+  - name: notebook
+    type: path
+    default: reading-the-result.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-one-run-to-take-apart.md
+  - pages/03-how-it-ended.md
+  - pages/04-what-it-used.md
+  - pages/05-what-it-cost.md
+  - pages/06-a-run-that-does-not-finish.md
+  - pages/07-finish.md

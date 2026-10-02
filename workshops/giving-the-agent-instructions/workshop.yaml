@@ -1,0 +1,51 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: giving-the-agent-instructions
+title: Give the agent its instructions
+version: 0.1.0
+description: Find out what a system prompt is and what the choice of one costs. Answer the same customer question under a prompt of your own, under the same prompt with one rule changed, and under the instructions Claude Code itself runs on, then compare what each sent to the model.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/giving-the-agent-instructions
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have given an agent its instructions three ways. A system
+  prompt of your own set out who the agent was and what it should do
+  when it did not know. Changing one rule in it changed what the agent
+  said. The `claude_code` preset did the same job with your prompt
+  appended, and sent several times as much to the model on every
+  request to do it.
+
+  Next is **Choose a model and how hard it thinks**, which runs one
+  task on a small model and a larger one and compares what each took,
+  then looks at effort and at thinking.
+
+  [Modifying system prompts](https://code.claude.com/docs/en/agent-sdk/modifying-system-prompts)
+  in the SDK's documentation covers the preset, `append` and the
+  other ways to shape what an agent is told.
+variables:
+  - name: notebook
+    type: path
+    default: giving-the-agent-instructions.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-prompt-of-your-own.md
+  - pages/03-change-one-rule.md
+  - pages/04-the-claude-code-preset.md
+  - pages/05-what-a-prompt-costs.md
+  - pages/06-finish.md

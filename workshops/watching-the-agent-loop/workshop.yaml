@@ -1,0 +1,52 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: watching-the-agent-loop
+title: Watch the agent loop
+version: 0.1.0
+description: Slow an agent's run down until each step can be seen. Ask a question that takes several tool calls, then take the run apart, to see what a request from the model is, who carries it out, how the result gets back, and why every request is larger than the one before.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/watching-the-agent-loop
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have watched the loop turn. The model asked for a tool in a
+  `ToolUseBlock`, which is only text. The SDK ran the tool on this
+  machine and sent what it found back in a `ToolResultBlock`, inside a
+  message in the user's role. That went round until the model replied
+  without asking for anything, and every request carried the whole
+  conversation so far.
+
+  Next is **Read what a run cost**, which opens the message that ends
+  every run: how it ended, how much work it was, what it used, and what
+  happens when a run is stopped before it finishes.
+
+  [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  in the SDK's documentation covers turns, messages and the tools that
+  come built in.
+variables:
+  - name: notebook
+    type: path
+    default: watching-the-agent-loop.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-question-that-takes-several-steps.md
+  - pages/03-what-the-model-asked-for.md
+  - pages/04-what-the-sdk-sent-back.md
+  - pages/05-everything-is-sent-again.md
+  - pages/06-how-the-loop-ends.md
+  - pages/07-finish.md

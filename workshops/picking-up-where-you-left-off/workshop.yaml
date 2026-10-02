@@ -1,0 +1,51 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: picking-up-where-you-left-off
+title: Pick up where you left off
+version: 0.1.0
+description: Find out where a conversation goes when the program that held it ends. List the sessions the SDK keeps on disk and read one back, resume it from a new run that shares nothing with the first, fork it to try another way forward without changing the original, and delete what you made.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/picking-up-where-you-left-off
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have taken a conversation up again after the run that held it
+  was over. The SDK had written the session to a transcript on disk.
+  `list_sessions()` found it and `get_session_messages()` read it
+  back. A new run with `resume` carried on in the same session, and
+  one with `fork_session=True` went a different way in a new session
+  and left the original as it was. `delete_session()` removed both.
+
+  Next is **Stream the reply as it is written**, which is about the
+  wait for an answer: how to show a reply while the model is still
+  producing it.
+
+  [Work with sessions](https://code.claude.com/docs/en/agent-sdk/sessions)
+  in the SDK's documentation covers resuming, continuing and forking,
+  and where transcripts are kept.
+variables:
+  - name: notebook
+    type: path
+    default: picking-up-where-you-left-off.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-run-that-ends.md
+  - pages/03-resume-it.md
+  - pages/04-fork-it.md
+  - pages/05-clean-up.md
+  - pages/06-finish.md

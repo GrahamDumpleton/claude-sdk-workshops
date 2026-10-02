@@ -1,0 +1,55 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: holding-a-conversation
+title: Hold a conversation
+version: 0.1.0
+description: Find out how an agent remembers what was said. See two separate runs know nothing of each other, then keep a client connected and hold a conversation of two turns on one session, measure what each turn was sent, and read how full the model's context window is.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/holding-a-conversation
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have held a conversation with an agent. Two calls to `query()`
+  were two sessions that knew nothing of each other. A
+  `ClaudeSDKClient` kept one session open, and the second turn could
+  answer from the first, because the whole conversation was sent to
+  the model again. The second turn was sent more than the first, and
+  `get_context_usage()` showed how much of the model's context window
+  the conversation had filled.
+
+  Next is **Pick up where you left off**, which is about what happens
+  to a conversation after the program that held it has gone: where it
+  is kept, how to resume it, and how to branch it.
+
+  The `ClaudeSDKClient` section of the
+  [Python reference](https://code.claude.com/docs/en/agent-sdk/python)
+  lists everything a client can do, and "The context window" in
+  [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  says what fills it.
+variables:
+  - name: notebook
+    type: path
+    default: holding-a-conversation.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-two-calls-that-do-not-know-each-other.md
+  - pages/03-a-client-that-stays-connected.md
+  - pages/04-ask-for-it-back.md
+  - pages/05-what-remembering-costs.md
+  - pages/06-hang-up.md
+  - pages/07-finish.md

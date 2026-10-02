@@ -162,6 +162,100 @@ Found while writing the first workshop, on the same release:
 - JupyterLab's Markdown preview renders a mermaid block, flowchart and
   sequence diagram both.
 
+Found while writing workshops 2 to 10, on the same release. Several
+changed the design, and the entries below are written to what was
+found.
+
+- **The cache is not used on a small request.** The cache counts in
+  `usage` were zero on every lean run, and first appeared when a
+  request passed about four thousand tokens. So workshop 3 explains
+  the cache and says the counts are zero, workshop 4 shows it at work
+  on the preset run, and workshops 2 and 7 show a conversation growing
+  in the plain input count.
+
+- **One reply is several messages.** A reply holding text and a tool
+  request arrives as an `AssistantMessage` for each block, with the
+  same `message_id` and the same `usage`. That `usage` gives the input
+  the request was sent. Its output count is not final and is not used.
+
+- **`num_turns` counts tool requests, plus one for the answer.** A
+  reply that asked for two tools at once counted as two. The
+  documentation's worked example counts such a reply once. Workshop 2
+  says how the SDK counts and checks only that there were at least two.
+
+- **A turn limit ends a run as the documentation says.** With
+  `max_turns=1` the result had the subtype `error_max_turns`, no
+  `result`, and `errors` naming the limit, and `query()` then raised
+  `ResultError`.
+
+- **The preset adds about six thousand tokens.** With one tool, the
+  first request was about 1,800 tokens under a prompt of four
+  sentences and about 8,100 under the `claude_code` preset. The sixteen
+  thousand of the first trial was the preset and every built-in tool
+  together.
+
+- **With no system prompt the agent has no role.** Asked the bookshop
+  question with `system_prompt` unset, the model said it was an AI
+  assistant and not a bookshop, and read nothing.
+
+- **Effort shows little on a small task.** `effort="low"` and
+  `effort="high"` on Sonnet gave runs within the spread of two runs at
+  the same setting. Setting `effort` on Sonnet also produced thinking
+  tokens with `thinking` disabled, which is why workshop 5's table has
+  no thinking column.
+
+- **The starting permission mode is not fixed.** The documentation
+  says a session with no `permission_mode` starts in a mode chosen by
+  settings and defaults, which can be `auto`. Workshop 6 passes
+  `"default"` by name.
+
+- **A refused call is a tool result.** In `default` mode with no
+  callback, a `Write` came back as a `ToolResultBlock` with `is_error`
+  set, the stream carried a `SystemMessage` of subtype
+  `permission_denied`, and the result listed the call in
+  `permission_denials`. The run ended in `success`.
+
+- **A model can ask for a tool it was not given.** With `Write` in
+  `disallowed_tools` the session's tool list did not have it, and the
+  model asked for it anyway and was told no such tool was available.
+  Nothing appears in `permission_denials` for that.
+
+- **A client reports usage a turn at a time.** On a `ClaudeSDKClient`
+  each result's `usage` is that turn's, while `total_cost_usd` runs on
+  through the session. `get_context_usage()` answers without a model
+  call, before the first turn as well as after.
+
+- **Auto-memory gets past `setting_sources=[]`.** When the working
+  directory is inside a project that Claude Code keeps auto-memory
+  for, the session is sent that project's memory index:
+  `get_context_usage()` lists it under "Memory files". It was 81
+  tokens here. `settings='{"autoMemoryEnabled": false}'` and the
+  environment variable `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` each removed
+  it. See the open questions.
+
+- **Sessions behave as documented.** `list_sessions()`,
+  `get_session_messages()`, `resume`, `fork_session` and
+  `delete_session()` all worked on transcripts in the workspace's
+  project directory. A session's `summary` is a generated title.
+
+- **Stream events arrive around the complete message.** With
+  `include_partial_messages=True` a text reply gave a `message_start`,
+  a `content_block_start`, about a hundred `content_block_delta`
+  events, then the complete `AssistantMessage`, then
+  `content_block_stop`, `message_delta` and `message_stop`. The joined
+  deltas equalled the message's text.
+
+- **Structured output is a tool call.** With `output_format` set, the
+  model's last act was to call a tool named `StructuredOutput` with
+  the data as its input. `structured_output` held the dictionary and
+  `result` the same data as JSON text. Haiku met the schema each time.
+
+- **A second self-test in place does not finish.** `jupyter workshop
+  test --in-place` on a directory that already held the state of an
+  earlier run was still going after four minutes and was stopped. The
+  likely cause is the Restart or Continue dialog a reopened workshop
+  shows. Test on a copy, which is what the tool does by default.
+
 ## Shape of the foundations collection
 
 One ordered collection, in three movements, with no visible break
@@ -257,34 +351,43 @@ workshop.
 
 What happens between the prompt and the answer.
 
-The agent is given four of the shop's documents and `Glob`, `Grep` and
-`Read`, and asked something no single obvious file answers: what to do
-when a customer returns a book without a receipt. The cell prints each
+The welcome page opens a diagram of the loop. The agent is then given
+four of the shop's documents and `Glob`, `Grep` and `Read`, and asked
+something no single file answers: what to do when a customer returns a
+book without a receipt, and when the manager is needed. The returns
+policy says what the customer may have and the staff handbook says what
+the member of staff does, so the run reads both. The cell prints each
 message as it arrives, labelled: the model's request to use a tool,
 with the tool's name and input; the result that was sent back; the next
 request; and at last a reply with no request in it.
 
-The pages take the printed run apart. A `ToolUseBlock` is the model
-asking, and it is only text in a fixed shape: the model ran nothing. A
-`quiz` asks who read the file. The SDK ran the tool, on this machine,
-and sent what it found back as a `ToolResultBlock` inside a
-`UserMessage`, which is why a tool result arrives in the user's role:
-to the model it is more input. One round of asking and answering is a
-turn. The loop ends when the model replies without asking for anything.
+The pages take the printed run apart, and none of their cells calls
+the model. A `ToolUseBlock` is the model asking, and it is only text in
+a fixed shape: the model ran nothing. A `quiz` asks who read the file.
+The SDK ran the tool, on this machine, and sent what it found back as a
+`ToolResultBlock` inside a `UserMessage`, which is why a tool result
+arrives in the user's role: to the model it is more input. A cell pairs
+every request with its answer by id.
 
-A second cell prints the token usage on each assistant message, so the
-learner sees the input grow from turn to turn. That is the other half
-of the idea: the model keeps nothing between requests, so the SDK sends
-the whole conversation so far each time, tool results included. The
-last cell compares the turns counted by hand with `num_turns` on the
-result.
+A cell then prints the tokens each reply was sent, from the `usage` on
+its `AssistantMessage`, so the learner sees the input grow from reply
+to reply. That is the other half of the idea: the model keeps nothing
+between requests, so the SDK sends the whole conversation so far each
+time, tool results included. The page says in passing that one reply
+arrives as an `AssistantMessage` for each block, sharing a
+`message_id`. The last cell puts the replies and tool requests counted
+by hand beside `num_turns` on the result, and the page says how the
+loop ends: on the first reply with no request in it.
 
 - Format: notebook. The checks read the list of tool names the run
   called, which must include `Read`, that every `ToolUseBlock` id has a
-  `ToolResultBlock` answering it, and that `num_turns` is at least two.
+  `ToolResultBlock` answering it, that the last reply was sent more
+  than the first, and that `num_turns` is at least two and the last
+  reply holds no request.
 
 - Ships: `shop/opening-hours.md`, `shop/returns-policy.md`,
-  `shop/staff-handbook.md` and `shop/events.md`.
+  `shop/staff-handbook.md` and `shop/events.md`, and one diagram,
+  `diagrams/the-agent-loop.md`.
 
 - Source: `agent-loop`, and the content block types in `python`.
 
@@ -294,14 +397,16 @@ result.
 
 How to tell what a run did, whether it worked, and what it used.
 
-One run, and then the `ResultMessage` field by field. `subtype` says
-how the run ended. `num_turns` and `duration_ms` say how much work it
-was. `usage` counts tokens, and the page says what a token is, a piece
-of a word, the unit the model reads and writes in and the unit usage is
-measured in. It separates the four counts: input, output, input written
-to the cache and input read from it, and says in two sentences why a
-cache exists, since the next workshops show it saving most of the cost
-of a long conversation.
+One run, and then the `ResultMessage` field by field. `subtype`,
+`is_error` and `stop_reason` say how the run ended. `num_turns` and
+`duration_ms` say how much work it was. `usage` counts tokens, and the
+page says what a token is, a piece of a word, the unit the model reads
+and writes in and the unit usage is measured in. It separates the four
+counts: input, output, input written to the cache and input read from
+it, and says why a cache exists. On a request this small both cache
+counts are zero, because a request has to be a few thousand tokens long
+before the cache is used, and the page says so and leaves the
+demonstration to the next workshop.
 
 Then `total_cost_usd`, and what it means here. It is the SDK's estimate
 of the run at API prices. Under a subscription nothing is charged per
@@ -309,30 +414,32 @@ run, and the same tokens count against the plan's limits, so the figure
 is a measure of size.
 
 Under a subscription login the stream also carries a `RateLimitEvent`,
-and a cell prints what it reports: the fraction of the plan's five
-hour and seven day limits used so far. That is the real measure for a
-subscriber, and the cell guards for the event being absent, as it is
-with an API key.
+and a cell prints what it reports: the status, which limit it is about,
+and the fraction of the plan's five hour and seven day limits used so
+far. Those fractions are in the event's `raw` data, which the SDK
+passes through without modelling, and the page says so. The cell guards
+for the event being absent, as it is with an API key.
 
 Then a run that does not finish. The same task is given
 `max_turns=1`, which is not enough for it. A `quiz` asks what the
 learner expects to get back. The result has the subtype
-`error_max_turns` and no `result` text, and `query()` raises after
-yielding it, so the cell catches the error and prints both. The page
-closes on why a limit belongs on every agent that runs unattended.
+`error_max_turns` and no `result` text, and `query()` raises
+`ResultError` after yielding it, so the cell catches the error and
+prints both. The page closes on why a limit belongs on every agent
+that runs unattended, and names `max_budget_usd` in a hint.
 
-- Format: notebook. The checks read the first result's `subtype`, that
-  its usage holds the four counts and the cost is a positive number,
-  the limited result's `subtype`, and the name of the exception the
-  cell caught.
+- Format: notebook. The checks read the first result's `subtype` and
+  that it took at least two turns, that its usage holds the counts and
+  the cost is a positive number, the limited result's `subtype` and
+  empty `result`, and the name of the exception the cell caught.
 
 - Ships: `shop/returns-policy.md` and `shop/staff-handbook.md`.
 
 - Source: "Handle the result" and "Turns and budget" in `agent-loop`,
   `cost-tracking`, the `ResultMessage` and error sections of `python`,
-  and `examples/max_budget_usd.py`. That a turn limit of one ends this
-  task with `error_max_turns` is from the documentation and is to be
-  confirmed on the pinned release when the workshop is written.
+  and `examples/max_budget_usd.py`. `duration_api_ms` is left out: it
+  came back larger than `duration_ms` in the trial, which a page would
+  have to explain.
 
 - Model calls: two. Length: 15 minutes.
 
@@ -346,33 +453,46 @@ of every request: who the agent is, what it is for, how it should
 behave. The model treats the two differently, and the person who writes
 the application writes the second.
 
-Three runs answer the same customer question. The first has a short
-prompt that makes the agent the shop's assistant, tells it to answer
-only from the shop's documents and to say so when they do not cover
-something. The second changes one rule and the learner reads the
-difference. The third uses the `claude_code` preset, the instructions
-Claude Code itself runs under, with one line appended. The cell then
-puts the input tokens of the runs side by side: the preset is many
-times the size, because it carries instructions for a coding assistant
-that this agent does not need.
+Three runs answer the same customer question, which has two halves: can
+a book be returned without a receipt, which the returns policy covers,
+and does the shop buy second-hand books, which it does not. A function
+defined in the first cell asks the question under whatever system
+prompt it is given. The first prompt makes the agent the shop's
+assistant, tells it to answer only from the policy and to say it does
+not know when the policy does not cover something. The second changes
+that one rule, to send the customer to a named person at the counter,
+and the learner reads the difference. The third uses the `claude_code`
+preset, the instructions Claude Code itself runs under, with the first
+prompt appended, after a `quiz` asks how the size of its request will
+compare.
+
+A cell then puts the size of the first request of each run side by
+side: the preset is several times the size, because it carries
+instructions for a coding assistant that this agent does not need. A
+last cell prints the preset run's usage, which is where the cache
+first shows: almost all of its input was written to the cache or read
+from it.
 
 The page draws the rule out. Start from a prompt of your own for an
 agent with its own job. Use the preset, with `append`, when the agent
-is doing what Claude Code does. Either way the prompt is sent with
-every request of every turn, and the cache is what makes that
-affordable.
+is doing what Claude Code does. Leave the option out and the SDK sends
+a minimal prompt that covers tool calling and nothing else. Either way
+the prompt is sent with every request of every turn, and the cache is
+what makes a long one affordable.
 
 - Format: notebook. The checks read that all three runs succeeded, and
-  that the preset run's input tokens, cache counts included, are
-  several times the first run's. The change in behaviour between the
-  first two runs is for the learner to read and is not checked.
+  that the preset run's first request, cache counts included, is more
+  than three times the first run's. The first request is compared, not
+  the whole run, so that a run that happens to take an extra turn does
+  not move the ratio. The change in behaviour between the first two
+  runs is for the learner to read and is not checked.
 
 - Ships: `shop/returns-policy.md`.
 
 - Source: `modifying-system-prompts`, the system prompt types in
-  `python`, and `examples/system_prompt.py`. What the SDK sends when
-  `system_prompt` is left unset is to be read from the pinned source
-  before the pages say anything about it.
+  `python`, and `examples/system_prompt.py`. With `system_prompt` left
+  unset the pinned release passes an empty one, and the documentation
+  calls the result the minimal default.
 
 - Model calls: three. Length: 15 minutes.
 
@@ -380,45 +500,54 @@ affordable.
 
 Which model to run an agent on, and what effort changes.
 
-The page introduces the tiers as a trade: a small model that is fast
-and light on usage, a larger one that reasons better and costs more of
-both, and a largest one beyond that. The `model` option takes a short
-name, and the `init` message shows the full name it stood for.
+The page introduces the sizes as a trade: a small model that is fast
+and light on usage, and larger ones that reason better and cost more
+of both. The `model` option takes a short name, and the `init` message
+shows the full name it stood for.
 
-One task that takes several steps, checking a customer's request
-against two of the shop's documents that have to be read together, is
-run on Haiku and on Sonnet. The cell builds a small table from the two
-results: turns, tokens in and out, seconds and estimated cost. The page
-says what to look for and does not promise what will be seen, since
-either model may do well or badly on a given run.
+One task that takes several steps is run on Haiku and on Sonnet: a
+loyalty scheme member wants to return a book on day 30, which the
+returns policy alone refuses and the loyalty scheme allows, as shop
+credit, with the points taken back. The agent has `Glob` and `Read` and
+is not told which files matter. A function defined in the first cell
+runs the task and keeps a row of figures for each run, and the cells
+print the answer, the files that run read, and a table: turns, tokens
+in and out, seconds and estimated cost. The page gives the three parts
+of a right answer, from the documents, and has the learner check each
+answer against them. It says what to look for and does not promise
+what will be seen, since either model may do well or badly on a given
+run.
 
-Then effort, which is how much reasoning the model spends on each
-response. The Sonnet run is repeated at `effort="low"` and added to the
-table. The page closes with the rule the collections follow: use the
-smallest model that does the job reliably, move up when it gets a
-multi-step task wrong, and lower effort for simple, well defined work.
+Then effort, which is how much work the model puts into each reply.
+The Sonnet run is repeated at `effort="low"` and added to the table.
+The page is plain that on a task this small the difference is often
+slight and can go either way, and says where the option earns its
+place.
 
 Every agent so far has set `thinking={"type": "disabled"}` without
 saying much about it. One cell here runs Haiku with that line taken
-out, and the learner sees what it was holding back: the model reasons
-before it replies, the stream gains thinking messages, and the output
-tokens grow several times over for the same answer. The page says what
-thinking is for, harder problems than these, and why the workshops
-leave it off.
+out, after a `quiz` on where the extra work will show, and the learner
+sees what it was holding back: the model reasons before it replies,
+its replies gain thinking blocks, and the output tokens grow for the
+same answer. The page says what thinking is for, harder problems than
+these, and why the workshops leave it off. It closes with the rule the
+collections follow: use the smallest model that does the job reliably,
+and move up when it gets a multi-step task wrong.
 
 This is the one workshop in the collection that leaves Haiku, for two
 Sonnet runs, because the comparison is its subject.
 
 - Format: notebook. The checks read that the two `init` messages name
-  different models, that all three runs succeeded, and that the table
-  has a row for each.
+  different models, that each run succeeded, and that the table has a
+  row for each of the four.
 
 - Ships: `shop/returns-policy.md` and `shop/loyalty-scheme.md`.
 
 - Source: "Choose a model" in `configuration`, and "Effort level" in
-  `agent-loop`. The task is to be tried on both models several times
-  before it is fixed, so that it is one where the difference usually
-  shows.
+  `agent-loop`. The task was tried several times on both models. Haiku
+  missed the loyalty scheme altogether on two runs of six and left out
+  the points on the others, and Sonnet gave all three parts every
+  time. Effort made no consistent difference on Sonnet at this size.
 
 - Model calls: five, two of them on Sonnet, the login check included.
   Length: 15 minutes.
@@ -429,22 +558,35 @@ How tools are given and withheld, and who approves a call.
 
 Workshop 1 gave the agent `Read` and nothing was asked. This one gives
 it `Write`, and the difference is the subject. The page separates two
-questions the SDK asks of every tool call. Is the tool there at all,
-which `tools` decides: the model cannot ask for a tool it was never
-told about. And may this call run, which the permission rules decide.
+questions the SDK asks of every tool. Is the tool there at all, which
+`tools` decides. And may this call run, which the permission rules
+decide.
 
-The first run has `tools=["Read", "Write"]` and asks the agent to write
-a short notice for the shop door from the opening hours. Reading
-inside the working directory needs no approval. Writing does, nobody
-is there to give it, and so the call is refused. The cell prints
-`permission_denials` from the result, and the learner sees that the
-model was told of the refusal and said so.
+A function defined in the first cell attempts one job, writing a short
+notice for the shop door from the opening hours, with
+`tools=["Read", "Write"]` and whatever permission options it is passed,
+and returns what happened: the tools the session had, the tools asked
+for, the calls denied and whether the notice exists. Each of the four
+runs is then one line, so the only thing that changes is in view.
 
-The second run adds `allowed_tools=["Write"]`, and the file appears in
-the workspace. The third shows the other way to the same end,
+The first attempt passes `permission_mode="default"`. Reading inside
+the working directory needs no approval. Writing does, nobody is there
+to give it, and so the call is refused, after a `quiz` asks what will
+happen. The cell prints `permission_denials` from the result, and the
+learner sees that the model was told of the refusal and said so. The
+mode is named because the mode a session starts in when the option is
+left out is not the same everywhere.
+
+The second attempt adds `allowed_tools=["Write"]`, and the file appears
+in the workspace. The page spends a paragraph on the name, since
+`allowed_tools` approves and does not give. A diagram of the checks
+opens here. The third shows the other way to the same end,
 `permission_mode="acceptEdits"`, and the page lays the modes out as a
-table of how much is approved without asking. The fourth uses
-`disallowed_tools` to take a tool away whatever else is set.
+table of how much is approved without asking. The fourth keeps that
+mode and uses `disallowed_tools` to take the tool away. The session's
+tool list no longer has `Write`, and the page says what the trial
+showed: the model may ask for it all the same, and is told there is no
+such tool.
 
 The page closes on why this matters more for an agent than for a chat:
 the agent acts on the machine it runs on, with the access of whoever
@@ -454,15 +596,17 @@ nowhere else.
 
 - Format: notebook. The checks read that the first result's
   `permission_denials` names `Write` and that the notice file does not
-  exist, that it does exist after the second run, and that the run
-  with `disallowed_tools` called no tool on that list.
+  exist, that it does exist after the second and third runs, and that
+  in the run with `disallowed_tools` the session's tools do not include
+  `Write`, nothing was denied and nothing was written.
 
-- Ships: `shop/opening-hours.md`.
+- Ships: `shop/opening-hours.md`, and one diagram,
+  `diagrams/may-this-call-run.md`.
 
 - Source: `permissions`, "Tool permissions" and "Permission mode" in
   `agent-loop`, and `examples/tools_option.py`. That a call needing
-  approval is refused when no callback is given is from the
-  documentation and is to be confirmed on the pinned release.
+  approval is refused when no callback is given was confirmed on the
+  pinned release.
 
 - Model calls: four. Length: 20 minutes.
 
@@ -470,38 +614,43 @@ nowhere else.
 
 How an agent remembers what was said, and what that costs.
 
-The workshop opens with a failure. Two calls to `query()`: the first
-tells the agent a stock code for a book that is in no file, the second
-asks for it back. The second knows nothing, and the two results carry
-different session ids. Each `query()` is a conversation of one
-exchange.
+The workshop opens with a failure. Two calls to `query()`, a cell
+each: the first tells the agent a stock code for a book that is in no
+file, the second asks for it back. The second knows nothing, and the
+two results carry different session ids. Each `query()` is a
+conversation of one exchange.
 
 `ClaudeSDKClient` is the other way to use the SDK. A cell connects a
 client and leaves it open. The next sends the stock code with
 `client.query()` and reads the reply with `receive_response()`. The
 next asks for it back, and gets it, on the same session id. The page
 says how that works, and it is the idea from workshop 2 again: the
-model remembers nothing, and the client resends the whole conversation
+model remembers nothing, and the session sends the whole conversation
 with every request.
 
-Two cells show what that means. The usage of each turn is printed, and
-the input read from the cache grows turn by turn: the conversation so
-far, resent and mostly read from the cache. Then `get_context_usage()`
-shows how full the context window is, and the page names the window:
+Two cells show what that means. The tokens each turn was sent are
+printed, and the second turn was sent more than the first: the
+conversation so far, sent again. Then `get_context_usage()` shows how
+full the context window is, by category, and the page names the window:
 the most text the model can be sent at once, which a long conversation
 will fill. What happens then is left to **Extending an agent with the
-Claude Agent SDK**. The last cell disconnects the client.
+Claude Agent SDK**. The last cell disconnects the client, and the page
+shows the `async with` form a program would use.
 
 - Format: notebook. The checks read that the two `query()` results
-  have different session ids, that the two client turns share one, that
-  the stock code appears in the second client reply, and that the
-  context usage total is a positive number.
+  have different session ids and the second does not hold the code,
+  that the two client turns share one, that the stock code appears in
+  the second client reply, that the second turn was sent more tokens
+  than the first, and that the context usage total is a positive
+  number below the window's size.
 
 - Ships: nothing.
 
 - Source: the `ClaudeSDKClient` section of `python`,
   `streaming-vs-single-mode`, "The context window" in `agent-loop`, and
-  `examples/streaming_mode_ipython.py`.
+  `examples/streaming_mode_ipython.py`. A conversation this short stays
+  below the size at which the cache is used, so the growth shows in
+  the plain input count and not in the cache counts.
 
 - Model calls: four. Length: 15 minutes.
 
@@ -512,29 +661,31 @@ How a conversation is kept, resumed and branched.
 A run tells the agent the stock code and ends. The page says where the
 conversation went: the SDK writes every session to a transcript on
 disk, under the Claude configuration directory, filed by the directory
-the agent worked in. `list_sessions()` shows it, with its id and first
-prompt, and `get_session_messages()` reads it back.
+the agent worked in. `list_sessions()` shows it, with its id, a
+summary and first prompt, and `get_session_messages()` reads it back.
 
-A new `query()`, in a cell that shares nothing with the first, passes
-`resume=` with that id and asks for the stock code. It answers, on the
+A new `query()`, in a cell that shares nothing with the first but the
+id, passes `resume=` and asks for the stock code. It answers, on the
 same session id. A `quiz` then asks what `fork_session=True` will do
-to the original. The forked run gets a new id and can go somewhere
-else, and reading the original's messages again shows it unchanged.
-One sentence covers `continue_conversation=True`, which resumes the
-most recent session in the directory without being given an id.
+to the original. The forked run is told the code has changed, gets a
+new id, and the cell counts the original's messages before and after
+to show it unchanged. A diagram of the three runs and the two sessions
+opens here. A hint covers `continue_conversation=True`, which resumes
+the most recent session in the directory without being given an id.
 
 The page says what this is for: a chat application that survives a
 restart, a job that failed and is taken up again, and trying two ways
-forward from one point. The last cell deletes the sessions the workshop
-made, with `delete_session()`, so the learner's own history is left as
-it was.
+forward from one point. A cell deletes the two sessions the workshop
+made on purpose, with `delete_session()`, and the page says that the
+login check, like every run, left a transcript of its own.
 
-- Format: notebook. The checks read that the resumed result carries
-  the first session's id, that the stock code appears in it, that the
-  forked result carries a different id, and that after the last cell
-  neither id is in `list_sessions()`.
+- Format: notebook. The checks read that the session is listed and can
+  be read back, that the resumed result carries the first session's id
+  and the stock code, that the forked result carries a different id
+  and the new code and left the original's message count unchanged,
+  and that after the last cell neither id is in `list_sessions()`.
 
-- Ships: nothing.
+- Ships: one diagram, `diagrams/resume-and-fork.md`.
 
 - Source: `sessions`, and the session functions in `python`.
 
@@ -545,29 +696,32 @@ it was.
 How to show an answer while it is still being produced.
 
 Until now a reply has arrived a block at a time: nothing, then all of
-it. The first cell times that, on a prompt that asks for a paragraph.
-The page says why it matters: a model writes a token at a time, a long
-answer takes seconds, and a person watching an empty box for that long
-thinks the program has hung.
+it. The first cell times that, on a prompt that asks for about two
+hundred words. The page says why it matters: a model writes a token at
+a time, a long answer takes seconds, and a person watching an empty box
+for that long thinks the program has hung.
 
 `include_partial_messages=True` adds `StreamEvent` messages to the
-stream, each carrying a raw event from the API. The second cell prints
-the type of every event in one run, so the learner sees the shape: a
-message starts, a content block starts, many deltas arrive, the block
-stops, the message stops. The third prints the text of each delta as
-it arrives, and the paragraph appears as it is written. The cell also
-records when the first text arrived and when the last did.
+stream, each carrying a raw event from the API. The second cell counts
+the events of each type in one run, in the order they first appear, so
+the learner sees the shape: a message starts, a content block starts,
+many deltas arrive, the block stops, the message stops. The third
+prints the text of each delta as it arrives, and the reply appears as
+it is written. The cell also records when the first text arrived and
+when the last did, and the page points out that streaming shortens the
+wait for the first sign of life and not the reply.
 
-The complete `AssistantMessage` still arrives after the events. The
-fourth cell joins the deltas and compares them with the text block of
-that message: they are the same text, delivered twice, which tells the
-learner which one to display and which to keep. A closing sentence
-says that a tool call's input streams the same way, which the chat app
-workshops use.
+The complete `AssistantMessage` still arrives once the text is
+finished. The fourth cell joins the deltas and compares them with the
+text of that message: they are the same text, delivered twice, which
+tells the learner which one to display and which to keep. A closing
+paragraph says that a tool call's input streams the same way, which
+the chat app workshops use.
 
-- Format: notebook. The checks read that the run produced stream
-  events and that the first text arrived before the last, and that the
-  joined deltas equal the text of the final assistant message.
+- Format: notebook. The checks read that the plain reply arrived, that
+  the run produced stream events and most were deltas, that the first
+  text arrived before the last, and that the joined deltas equal the
+  text of the final assistant message.
 
 - Ships: nothing.
 
@@ -581,34 +735,45 @@ workshops use.
 How to use an agent as a function in a program.
 
 A program cannot do much with a paragraph. The first cell asks the
-agent for the shop's opening hours and tries to work out from the
-reply whether the shop is open at a given time, and the page lets the
-difficulty stand: the reply is written for a person.
+agent for the shop's opening hours, and a second pulls out everything
+in the reply that looks like a time. The page lets the difficulty
+stand: the times are there with nothing to say which day or which end
+of the day each belongs to, because the reply is written for a person
+and laid out differently on every run.
 
-`output_format` takes a JSON Schema. The second cell describes the
-shape wanted, a list of days each with an opening and a closing time,
-and runs the same task. The reply's prose is beside the point now:
+`output_format` takes a JSON Schema. The next cell describes the shape
+wanted, a list of days each with an opening and a closing time in 24
+hour form or nothing when the shop is shut, and runs the same task.
 `structured_output` on the result is a dictionary that matches the
-schema. The third cell uses it as data, in ordinary Python, to answer
-the question the first cell could not.
+schema, with an entry for each of the seven days though the file gives
+four of them as one row.
 
-The page says what this is: the agent still loops, reads the file and
-reasons, and the last thing it produces is checked against the schema
-before it is handed back. It names the result subtype for the case
-where no valid output could be produced, and closes the collection on
-the two ways an agent is used, as a conversation and as a function,
-with the two collections that follow.
+A cell that calls nothing then shows how it was done, from the tool
+names the run recorded: the SDK added a tool of its own whose input
+has to match the schema, and the model's last act was to call it. The
+page says what follows from that: the agent still loops, reads the
+file and reasons, the value is checked against the schema before it is
+handed back, and `result` holds the same data as JSON text. It names
+the result subtype for the case where no valid output could be
+produced. The last cell uses the data in ordinary Python to answer the
+question the first page could not, whether the shop is open at a given
+time on a given day.
 
-- Format: notebook. The checks read that `structured_output` is a
-  dictionary with the schema's keys and types, and that the closing
-  time for Saturday equals the one in the shipped file.
+The finish page closes the collection on the two ways an agent is
+used, as a conversation and as a function, with the two collections
+that follow.
+
+- Format: notebook. The checks read that the plain run has no
+  `structured_output`, that the structured one is a dictionary with
+  seven days, that the closing time for Saturday equals the one in the
+  shipped file, that the run read the file, and that the function
+  written over the data gives the right answer for four times.
 
 - Ships: `shop/opening-hours.md`.
 
-- Source: `structured-outputs`, and `output_format` in `python`.
-  Whether Haiku meets the schema reliably through the SDK is to be
-  tried before the workshop is written; if it does not, this workshop
-  uses Sonnet and says why.
+- Source: `structured-outputs`, and `output_format` in `python`. Haiku
+  met the schema on every one of three trial runs, so the workshop
+  stays on it.
 
 - Model calls: two. Length: 15 minutes.
 
@@ -997,8 +1162,8 @@ safe.
 plan pays for every run, and the trial showed the small model does
 them. The exceptions are named in their entries: the model comparison
 in foundations workshop 5, and possibly subagents and structured
-output. One pass through the foundations collection is about thirty
-calls, most of them a few cents at API prices by the trial's figures.
+output. One pass through the foundations collection is about forty
+calls, each a cent or two at API prices by the trial's figures.
 
 **Every run is isolated and lean.** Every options object sets
 `setting_sources=[]`, `strict_mcp_config=True`, `tools` to exactly what
@@ -1050,8 +1215,11 @@ workshop ships a Markdown file with a mermaid diagram under
 `diagrams/` and a page opens it in JupyterLab's Markdown preview, in a
 tab of the main area. The instructions panel is too narrow for one. The
 user asked for this on 2026-10-02 and left where to use it to
-judgement: the first workshop has two, one of the components and one
-of a run, and a workshop gets one only where it earns its place.
+judgement. The first workshop has two, one of the components and one
+of a run. Workshop 2 has the loop, workshop 6 the checks made before
+a tool runs, and workshop 8 the sessions left by a resume and a fork.
+A workshop gets one only where it earns its place, and a flowchart is
+laid out left to right, which fits a wide tab better than a tall one.
 
 **Concept before call.** Each page says what a thing is and why,
 before the cell that uses it. The collections exist to teach how agents
@@ -1082,8 +1250,20 @@ application as it stood at the end of the one before.
 **Sessions are written under the home directory.** The SDK records
 each session's transcript under the Claude configuration directory,
 outside the workspace. It is the one thing a workshop leaves outside
-its own directory. The sessions workshop deletes what it made; see the
-open questions for the rest.
+its own directory. The sessions workshop deletes the two it makes on
+purpose and tells the learner that every run leaves one; see the open
+questions for the rest.
+
+**A function for a run that is repeated.** Where a workshop makes the
+same run several times with one option changed, as workshops 4, 5 and
+6 do, the first cell defines a function that makes the run and the
+later cells are one line each, so that what changed is all there is to
+read. Workshops that make one run of each kind write the options out
+in full.
+
+**Options are copied, not rewritten.** A cell that needs the earlier
+options with one field changed uses `dataclasses.replace`, as in
+`replace(options, max_turns=1)`, which shows the one difference.
 
 **Done.** A workshop is done when lint is clean, `just test <name>`
 is green, it is in the index and the README, and its row in the status
@@ -1183,7 +1363,9 @@ None at present.
   workspace's path. Whether the workshops should keep these out, by an
   option that turns persistence off if the pinned release has one, or
   clean up after themselves, or leave them, is not decided. Only the
-  sessions workshop needs them kept.
+  sessions workshop needs them kept. As written, that workshop deletes
+  the two sessions it makes on purpose, and every other run of every
+  workshop, the login checks included, leaves its transcript.
 
 - **The web framework for the chat app.** The SDK is asynchronous, so
   the server is an ASGI one. Starlette with server-sent events is the
@@ -1192,10 +1374,22 @@ None at present.
   the extension opens finds the project environment's Python is to be
   checked then.
 
-- **What Haiku cannot do.** Structured output, compaction and tool
-  search are to be tried on Haiku before their workshops are designed
-  in detail. Effort made no visible difference on Haiku in the trial,
-  which is why foundations workshop 5 shows it on Sonnet.
+- **What Haiku cannot do.** Compaction and tool search are to be tried
+  on Haiku before their workshops are designed in detail. Structured
+  output was tried and works. Effort made no visible difference on
+  Haiku in the trial, which is why foundations workshop 5 shows it on
+  Sonnet, where it made little on a task of that size either.
+
+- **Auto-memory in the agent's context.** A session whose working
+  directory is inside a project with Claude Code auto-memory is sent
+  that project's memory index, whatever `setting_sources` says. That is
+  the author's checkout, and any learner who uses Claude Code in the
+  directory the workshops are kept in. It breaks the rule that every
+  learner gets the same agent, by a small amount. One more option on
+  every agent, `settings='{"autoMemoryEnabled": false}'`, closes it,
+  at the price of a fourth line in every cell that the first workshop
+  has to explain. Not decided. Workshop 7 tells the learner what the
+  "Memory files" line is if they see it.
 
 - **When the repository goes public.** It is private for now. The
   README's clone command and the collection addresses work for others
@@ -1215,15 +1409,15 @@ Foundations:
 | # | Workshop | Status |
 | --- | --- | --- |
 | 1 | `your-first-agent` | Done |
-| 2 | `watching-the-agent-loop` | Planned |
-| 3 | `reading-the-result` | Planned |
-| 4 | `giving-the-agent-instructions` | Planned |
-| 5 | `choosing-a-model` | Planned |
-| 6 | `deciding-what-it-can-do` | Planned |
-| 7 | `holding-a-conversation` | Planned |
-| 8 | `picking-up-where-you-left-off` | Planned |
-| 9 | `streaming-the-reply` | Planned |
-| 10 | `getting-data-back` | Planned |
+| 2 | `watching-the-agent-loop` | Done |
+| 3 | `reading-the-result` | Done |
+| 4 | `giving-the-agent-instructions` | Done |
+| 5 | `choosing-a-model` | Done |
+| 6 | `deciding-what-it-can-do` | Done |
+| 7 | `holding-a-conversation` | Done |
+| 8 | `picking-up-where-you-left-off` | Done |
+| 9 | `streaming-the-reply` | Done |
+| 10 | `getting-data-back` | Done |
 
 Extending:
 
