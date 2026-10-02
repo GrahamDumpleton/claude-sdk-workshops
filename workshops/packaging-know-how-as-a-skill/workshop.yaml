@@ -1,0 +1,54 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: packaging-know-how-as-a-skill
+title: Package know-how as a skill
+version: 0.1.0
+description: Give an agent a procedure it loads only when it needs it. Install the shop's way of answering a refund request as a skill, see that only its one line description is in the agent's context to begin with, watch the agent call the Skill tool when a refund comes up, and compare a request that needs the skill with one that does not.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/packaging-know-how-as-a-skill
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      split: columns
+      areas:
+        - { name: notebook, tabs: [] }
+        - { name: code, size: 0.4, tabs: ["file:skills/refund-reply/SKILL.md"] }
+gating: soft
+finish: |
+  You have given an agent a skill. A skill is a directory with a
+  `SKILL.md` in it, found under `.claude/skills/` when
+  `setting_sources` includes `"project"`, enabled by name with the
+  `skills` option, and loaded through the `Skill` tool. Only its
+  description is sent to begin with. The body arrives when the model
+  asks for it, so an agent can hold many procedures and pay for the
+  ones it uses.
+
+  Next is **Ask before acting**, which turns from what an agent
+  knows to what it is allowed to do, and puts a decision of yours in
+  front of each thing it changes.
+
+  [Extend agents with skills](https://code.claude.com/docs/en/agent-sdk/skills)
+  in the SDK's documentation covers where skills are found, how they
+  are enabled and how one is run by name.
+variables:
+  - name: notebook
+    type: path
+    default: packaging-know-how-as-a-skill.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-put-the-skill-where-the-sdk-looks.md
+  - pages/03-what-the-agent-starts-with.md
+  - pages/04-a-request-that-needs-it.md
+  - pages/05-a-request-that-does-not.md
+  - pages/06-finish.md

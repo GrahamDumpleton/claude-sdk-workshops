@@ -11,5 +11,321 @@
     "tools"
   ],
   "ordered": true,
-  "workshops": []
+  "workshops": [
+    {
+      "name": "giving-the-agent-a-tool",
+      "title": "Give the agent a tool of your own",
+      "description": "Turn a Python function into a tool an agent can ask for. Decorate a stock lookup with @tool, put it in a server that runs inside your own program, and watch the agent call it. Then run the same question against a vague description and an honest one, add a second tool, and mark tools that only look so that the SDK runs them side by side.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/giving-the-agent-a-tool",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/giving-the-agent-a-tool"
+          }
+        }
+      ]
+    },
+    {
+      "name": "connecting-an-mcp-server",
+      "title": "Connect an MCP server",
+      "description": "Find out what the Model Context Protocol is by using it. Take a stock lookup that lives in a small server program of its own, have the SDK start it and connect to it, read its state and its tools with get_mcp_status(), ask the agent a question through it, and see how a server that fails to start is reported.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/connecting-an-mcp-server",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/connecting-an-mcp-server"
+          }
+        }
+      ]
+    },
+    {
+      "name": "answering-from-your-own-data",
+      "title": "Answer from your own data",
+      "description": "Put what you know within an agent's reach, two ways. Have the agent search and read the shop's documents with its built-in tools, then build a small orders database and give the agent a tool that runs read-only queries on it. Ask a question that needs both, compare what each way costs, and learn what the SDK leaves for you to supply.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/answering-from-your-own-data",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/answering-from-your-own-data"
+          }
+        }
+      ]
+    },
+    {
+      "name": "instructions-that-persist",
+      "title": "Give instructions that persist",
+      "description": "Keep an agent's standing instructions in a file. Put the shop's house rules in a CLAUDE.md, run the agent without them and then with setting_sources set to load them, see which files a session was given and what they add to every request, and learn what the option lets in and why the other workshops keep it empty.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/instructions-that-persist",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/instructions-that-persist"
+          }
+        }
+      ]
+    },
+    {
+      "name": "packaging-know-how-as-a-skill",
+      "title": "Package know-how as a skill",
+      "description": "Give an agent a procedure it loads only when it needs it. Install the shop's way of answering a refund request as a skill, see that only its one line description is in the agent's context to begin with, watch the agent call the Skill tool when a refund comes up, and compare a request that needs the skill with one that does not.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "15m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/packaging-know-how-as-a-skill",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/packaging-know-how-as-a-skill"
+          }
+        }
+      ]
+    },
+    {
+      "name": "asking-before-acting",
+      "title": "Ask before acting",
+      "description": "Put a decision of your own in front of what an agent changes. Write a can_use_tool callback that stands in for a person, and watch it allow one call, refuse another with a reason the model then reads, and let a third through with its input changed. Then answer a clarifying question the agent asks through the same callback.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/asking-before-acting",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/asking-before-acting"
+          }
+        }
+      ]
+    },
+    {
+      "name": "guardrails-in-code",
+      "title": "Put guardrails in code",
+      "description": "Find out what a prompt can only ask for and what code can enforce. Give an agent a rule in its system prompt and a request that argues with it, then enforce the same rule with a PreToolUse hook that refuses the call whatever the model was told, and keep a log of every tool call with a PostToolUse hook.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/guardrails-in-code",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/guardrails-in-code"
+          }
+        }
+      ]
+    },
+    {
+      "name": "handing-work-to-subagents",
+      "title": "Hand work to subagents",
+      "description": "Give part of a job to a second agent. Have an agent read ten supplier files to answer one question, then define a subagent with AgentDefinition to do the reading and report back, compare what the main conversation holds each way, and run the main agent and the subagent on different models.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/handing-work-to-subagents",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/handing-work-to-subagents"
+          }
+        }
+      ]
+    },
+    {
+      "name": "keeping-a-long-session-small",
+      "title": "Keep a long session small",
+      "description": "See what fills an agent's context window and what is done about it. Measure a session by what is in it, fill it with tool results, compact it and read the summary that replaces the history, find out what survived, and then give an agent twenty tools and have their definitions wait until they are looked for.",
+      "tags": [
+        "python",
+        "claude",
+        "agents"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "frontends": [],
+      "capabilities": [
+        "write-files",
+        "kernel-exec"
+      ],
+      "duration": "20m",
+      "authors": [
+        "Graham Dumpleton"
+      ],
+      "homepage": "https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/keeping-a-long-session-small",
+      "issues": "https://github.com/GrahamDumpleton/claude-sdk-workshops/issues",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "source": {
+            "git": "https://github.com/GrahamDumpleton/claude-sdk-workshops",
+            "ref": "main",
+            "subdir": "workshops/keeping-a-long-session-small"
+          }
+        }
+      ]
+    }
+  ]
 }

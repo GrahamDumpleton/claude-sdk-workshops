@@ -1,0 +1,56 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: answering-from-your-own-data
+title: Answer from your own data
+version: 0.1.0
+description: Put what you know within an agent's reach, two ways. Have the agent search and read the shop's documents with its built-in tools, then build a small orders database and give the agent a tool that runs read-only queries on it. Ask a question that needs both, compare what each way costs, and learn what the SDK leaves for you to supply.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/answering-from-your-own-data
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      split: columns
+      areas:
+        - { name: notebook, tabs: [] }
+        - { name: code, size: 0.4, tabs: ["file:data/orders.sql"] }
+gating: soft
+finish: |
+  You have had an agent answer from your own data. Documents it
+  searched and read for itself with `Glob`, `Grep` and `Read`,
+  deciding what to look for as it went. Records it reached through a
+  tool of yours that ran a query and could not write. Asked a
+  question that needed both, it chose between them from their
+  descriptions. The SDK brings no search index of its own: anything
+  of that kind goes behind a tool, as the database did.
+
+  Next is **Give instructions that persist**, which moves from what
+  an agent can look up to what it is told every time: instructions
+  kept in a file and loaded with every session.
+
+  [Give Claude custom tools](https://code.claude.com/docs/en/agent-sdk/custom-tools)
+  and [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  in the SDK's documentation cover tools over your own systems and
+  what tool results cost in context.
+variables:
+  - name: notebook
+    type: path
+    default: answering-from-your-own-data.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-answer-from-the-documents.md
+  - pages/03-records-are-not-documents.md
+  - pages/04-a-tool-in-front-of-the-database.md
+  - pages/05-a-question-that-needs-both.md
+  - pages/06-which-to-use.md
+  - pages/07-finish.md

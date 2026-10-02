@@ -1,0 +1,54 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: asking-before-acting
+title: Ask before acting
+version: 0.1.0
+description: Put a decision of your own in front of what an agent changes. Write a can_use_tool callback that stands in for a person, and watch it allow one call, refuse another with a reason the model then reads, and let a third through with its input changed. Then answer a clarifying question the agent asks through the same callback.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/asking-before-acting
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have put a decision of your own in front of an agent's
+  actions. `can_use_tool` names a function the SDK calls when a tool
+  needs approval. It returns `PermissionResultAllow`, with the input
+  changed if you like, or `PermissionResultDeny` with a message the
+  model is sent. The same function is how an agent's questions reach
+  you: a call to `AskUserQuestion` arrives there, and the answers go
+  back as its input.
+
+  Next is **Put guardrails in code**. The callback is asked only
+  about calls that need approval. A hook is code that runs on every
+  call, whatever the permission settings say, which makes it the
+  place for a rule that must hold.
+
+  [Handle approvals and user input](https://code.claude.com/docs/en/agent-sdk/user-input)
+  in the SDK's documentation covers every way the callback can
+  answer.
+variables:
+  - name: notebook
+    type: path
+    default: asking-before-acting.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-someone-to-ask.md
+  - pages/03-a-call-that-is-allowed.md
+  - pages/04-a-call-that-is-refused.md
+  - pages/05-a-call-that-is-changed.md
+  - pages/06-a-question-from-the-agent.md
+  - pages/07-finish.md

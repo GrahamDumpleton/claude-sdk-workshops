@@ -154,12 +154,22 @@ time, and it can act on the machine it runs on.
   as mail and calendar, even when `setting_sources` is empty; that was
   seen on the pinned release. A workshop that teaches settings uses
   `setting_sources=["project"]` against files it ships, and never
-  `"user"`.
+  `"user"`. The project source reads upward: it loads the `CLAUDE.md`
+  of every directory above the workspace and finds the skills of the
+  repository the workspace sits in, this one's included. So such a
+  workshop names its skills with `skills=[...]`, never `"all"`, tells
+  the learner that files from above are loaded, and checks for its own
+  file among those loaded, not that there is exactly one.
 
 - **Name the tools.** Every options object sets `tools=[...]` to
   exactly the built-in tools the step needs, an empty list where it
   needs none. Left unset, the session has every built-in tool,
-  including `Bash`, `Write` and `WebFetch`.
+  including `Bash`, `Write` and `WebFetch`. Some features are a
+  built-in tool and need naming there: `"Skill"` for skills, `"Agent"`
+  for subagents, `"AskUserQuestion"` for the agent's questions, and
+  `"ToolSearch"` for tool search. A subagent can use only tools that
+  are in the session's own list. `tools` does not cover the tools of
+  an MCP server, which are approved by name in `allowed_tools`.
 
 - **Keep the agent inside the workspace.** The agent's working
   directory is the workshop's workspace and no cell points `cwd` or
@@ -168,6 +178,22 @@ time, and it can act on the machine it runs on.
   permissions, approvals or hooks, and those allow only commands the
   page names and that stay inside the workspace. No workshop gives it
   `WebSearch` or `WebFetch`.
+
+- **A tool or a server of the workshop's own does one small thing.**
+  A tool written in a cell, and a server a workshop ships, read the
+  workshop's own files or a database a cell built in the workspace,
+  and change nothing. A database is opened read-only. A callback or a
+  hook that decides about a path resolves it and refuses anything
+  outside the workspace before it applies any other rule. A stdio
+  server is started with `sys.executable`, so that it runs on the
+  kernel's Python, and is written for the `mcp` package at versions 1
+  and 2, which the SDK both accepts.
+
+- **A subagent runs in the foreground.** Left alone it is started in
+  the background and the main agent's turn ends before its report
+  arrives. A cell that hands work to a subagent sets
+  `env={"CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1"}`, and the page
+  says why.
 
 - **Use the small model.** Every options object sets `model="haiku"`
   unless the workshop's OUTLINE entry says otherwise, and the entry
@@ -357,6 +383,12 @@ sections above:
   arrives through an action, so the learner's attention goes on reading
   and predicting rather than on typing and typos.
 
+- Nothing under a directory whose name begins with a dot can be shown
+  or written through JupyterLab: the server's contents API hides it.
+  A file that has to end up under `.claude/` is shipped somewhere
+  visible and copied there by a cell, which is how the skill workshop
+  installs its skill.
+
 - A diagram goes in a file of its own, not in a page. Where a picture
   of how components fit together, or of the order things happen in,
   explains something better than prose, ship it as a Markdown file
@@ -463,7 +495,10 @@ Never pass `--in-place` on a directory under `workshops/`: it leaves
 `work/` and `_workshop/` behind in the checkout, where the user may
 have JupyterLab open on the same workshop, and a second run in place
 does not finish. To read what the cells printed, copy the workshop
-under `scratch/` and test the copy in place.
+under `scratch/` and test the copy in place. A copy under `scratch/`
+is still inside this repository, so a run there that loads project
+settings is given this repository's `CLAUDE.md` and skills as well as
+the workshop's own.
 
 Before running any of them, read every cell body and every check in the
 workshop. Run them unasked only when everything stays inside the

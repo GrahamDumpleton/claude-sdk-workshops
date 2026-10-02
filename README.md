@@ -31,7 +31,7 @@ Each collection is a course: its workshops are numbered in the order to
 take them, and the Finish dialog of each offers the next. A
 [catalog](catalog.json) names every collection.
 
-The first collection is written. The lists for the other two are the
+The first two collections are written. The list for the third is the
 plan, from [OUTLINE.md](OUTLINE.md), and each entry is filled in as its
 workshop is written.
 
@@ -105,18 +105,64 @@ half hours in all, each in a live notebook.
 ### Extending an agent with the Claude Agent SDK
 
 Nine workshops on giving an agent more to work with and tighter limits,
-about three hours in all, each in a notebook, most with the code the
-agent is given open beside it.
+about two and three quarter hours in all, each in a live notebook, some
+with the file the agent is given open beside it.
 
-1. **Give the agent a tool of your own** (`giving-the-agent-a-tool`)
-2. **Connect an MCP server** (`connecting-an-mcp-server`)
-3. **Answer from your own data** (`answering-from-your-own-data`)
-4. **Give instructions that persist** (`instructions-that-persist`)
-5. **Package know-how as a skill** (`packaging-know-how-as-a-skill`)
-6. **Ask before acting** (`asking-before-acting`)
-7. **Put guardrails in code** (`guardrails-in-code`)
-8. **Hand work to subagents** (`handing-work-to-subagents`)
-9. **Keep a long session small** (`keeping-a-long-session-small`)
+**More to work with**
+
+1. **Give the agent a tool of your own** (`giving-the-agent-a-tool`,
+   20 minutes). Turn a Python function into a tool with `@tool` and a
+   server that runs inside your own program. The model sees only the
+   tool's name, description and input, so run one question against a
+   vague description and an honest one, add a second tool, and mark
+   tools that only look so the SDK runs them side by side.
+2. **Connect an MCP server** (`connecting-an-mcp-server`, 15 minutes).
+   What the Model Context Protocol is, by using it. Have the SDK start
+   a small server program of its own, read its state and tools with
+   `get_mcp_status()`, ask the agent a question through it, and see
+   how a server that fails to start is reported.
+3. **Answer from your own data** (`answering-from-your-own-data`, 20
+   minutes). Two ways to put what you know within an agent's reach.
+   The agent searches and reads the shop's documents with its built-in
+   tools, queries an orders database through a read-only tool of yours,
+   and answers a question that needs both. The SDK has no vector store
+   of its own, and the workshop says where one would go.
+
+**Standing knowledge**
+
+4. **Give instructions that persist** (`instructions-that-persist`, 15
+   minutes). Keep house rules in a `CLAUDE.md` and load them with
+   `setting_sources`. See which instruction files a session was given,
+   what they add to every request, what else the option lets in, and
+   why the other workshops keep it empty.
+5. **Package know-how as a skill** (`packaging-know-how-as-a-skill`,
+   15 minutes). A procedure the agent loads only when it needs it.
+   Install a skill, see that only its description is in the context to
+   begin with, watch the agent call the `Skill` tool when a refund
+   comes up, and compare a request that needs it with one that does
+   not.
+
+**Control and scale**
+
+6. **Ask before acting** (`asking-before-acting`, 20 minutes). Put a
+   decision of your own in front of what an agent changes. A
+   `can_use_tool` callback allows one call, refuses another with a
+   reason the model reads, changes the input of a third, and answers a
+   clarifying question the agent asks.
+7. **Put guardrails in code** (`guardrails-in-code`, 20 minutes). What
+   a prompt can only ask for and what code can enforce. Give an agent
+   a rule in its system prompt and a request that argues with it, then
+   enforce the rule with a `PreToolUse` hook, and log every tool call
+   with a `PostToolUse` hook.
+8. **Hand work to subagents** (`handing-work-to-subagents`, 20
+   minutes). Have one agent give the reading of ten files to another,
+   defined with `AgentDefinition`, compare what the main conversation
+   holds each way, and run the two agents on different models.
+9. **Keep a long session small** (`keeping-a-long-session-small`, 20
+   minutes). Measure what is in the context window, fill it, compact
+   it and read the summary that replaces the history, find out what
+   survived, and have the definitions of twenty tools wait until they
+   are looked for.
 
 ### Building a chat app with the Claude Agent SDK
 
@@ -156,9 +202,11 @@ Every step that matters calls the model. With a subscription login
 nothing is charged per run, and the runs count against your plan's
 usage limits like any other use of Claude. The workshops are built to
 use little: they run on Haiku, the smallest model, except in the two
-or three places a workshop is about a larger one, and they keep each
-request small. A workshop makes two to five small runs, and the ten
-foundations workshops about forty between them.
+places a workshop is about a larger one, and they keep each request
+small. A workshop makes two to seven small runs: the ten foundations
+workshops about forty between them, and the nine extending workshops
+about forty more. The largest are in the two workshops that have an
+agent read ten short files.
 
 Anthropic does not allow a third party to offer claude.ai login or its
 rate limits in a product of their own. Running these workshops, and

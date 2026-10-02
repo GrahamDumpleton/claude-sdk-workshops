@@ -1,0 +1,50 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: guardrails-in-code
+title: Put guardrails in code
+version: 0.1.0
+description: Find out what a prompt can only ask for and what code can enforce. Give an agent a rule in its system prompt and a request that argues with it, then enforce the same rule with a PreToolUse hook that refuses the call whatever the model was told, and keep a log of every tool call with a PostToolUse hook.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/guardrails-in-code
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have enforced a rule in code. A rule in a prompt is a request
+  to the model, and the model can be argued out of it. A hook is a
+  function the SDK runs at a fixed point in the loop: a `PreToolUse`
+  hook sees every call before it runs and can refuse it, and a
+  `PostToolUse` hook sees every call that ran. Neither depends on the
+  model agreeing, and neither is skipped by a permission mode.
+
+  Next is **Hand work to subagents**, which gives part of a job to a
+  second agent with instructions, tools and a context of its own.
+
+  [Intercept and control agent behavior with hooks](https://code.claude.com/docs/en/agent-sdk/hooks)
+  in the SDK's documentation lists every event and what a hook can
+  return for each.
+variables:
+  - name: notebook
+    type: path
+    default: guardrails-in-code.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-rule-that-is-only-asked-for.md
+  - pages/03-a-rule-in-code.md
+  - pages/04-see-every-call.md
+  - pages/05-where-a-hook-sits.md
+  - pages/06-finish.md

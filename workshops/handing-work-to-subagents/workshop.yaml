@@ -1,0 +1,53 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: handing-work-to-subagents
+title: Hand work to subagents
+version: 0.1.0
+description: Give part of a job to a second agent. Have an agent read ten supplier files to answer one question, then define a subagent with AgentDefinition to do the reading and report back, compare what the main conversation holds each way, and run the main agent and the subagent on different models.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/handing-work-to-subagents
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have had one agent hand work to another. A subagent is defined
+  with `AgentDefinition`: a description that tells the main agent
+  when to use it, instructions of its own, its own tools and, if you
+  like, its own model. The main agent starts it with the `Agent`
+  tool. The subagent does its reading in a conversation of its own
+  and hands back a report, and only the report joins the main
+  conversation. The work is not cheaper in total. What it saves is
+  room in the conversation that carries on.
+
+  Next is **Keep a long session small**, the last of these
+  workshops, on what fills a conversation and what the SDK does when
+  it is full.
+
+  [Subagents in the SDK](https://code.claude.com/docs/en/agent-sdk/subagents)
+  in the SDK's documentation covers every field of a definition and
+  how to limit how many subagents run.
+variables:
+  - name: notebook
+    type: path
+    default: handing-work-to-subagents.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-do-the-reading-yourself.md
+  - pages/03-give-the-reading-away.md
+  - pages/04-what-each-conversation-held.md
+  - pages/05-a-model-for-each.md
+  - pages/06-finish.md

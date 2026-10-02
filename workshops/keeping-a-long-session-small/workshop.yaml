@@ -1,0 +1,56 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: keeping-a-long-session-small
+title: Keep a long session small
+version: 0.1.0
+description: See what fills an agent's context window and what is done about it. Measure a session by what is in it, fill it with tool results, compact it and read the summary that replaces the history, find out what survived, and then give an agent twenty tools and have their definitions wait until they are looked for.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/keeping-a-long-session-small
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have watched a session fill and made it smaller.
+  `get_context_usage()` says what is in the context window and how
+  much of it is tool results. Compaction replaces the history with a
+  summary, on request with `/compact` or by itself when the window is
+  nearly full, and a `compact_boundary` message marks where. What you
+  said is kept, and detail that was only in a tool result may not be.
+  Tool search keeps the definitions of tools out of the window until
+  the model looks for one.
+
+  That is the last of these workshops. **Building a chat app with
+  the Claude Agent SDK** is the set that follows, and puts what the
+  first two sets taught behind a web page: streaming, sessions,
+  approvals and tools of your own.
+
+  [How the agent loop works](https://code.claude.com/docs/en/agent-sdk/agent-loop)
+  in the SDK's documentation has a section on the context window,
+  and [Scale to many tools with tool search](https://code.claude.com/docs/en/agent-sdk/tool-search)
+  covers tool search.
+variables:
+  - name: notebook
+    type: path
+    default: keeping-a-long-session-small.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-what-is-in-the-window.md
+  - pages/03-fill-it.md
+  - pages/04-compact-it.md
+  - pages/05-what-was-kept.md
+  - pages/06-tools-that-wait.md
+  - pages/07-finish.md

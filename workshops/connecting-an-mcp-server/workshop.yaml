@@ -1,0 +1,54 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: connecting-an-mcp-server
+title: Connect an MCP server
+version: 0.1.0
+description: Find out what the Model Context Protocol is by using it. Take a stock lookup that lives in a small server program of its own, have the SDK start it and connect to it, read its state and its tools with get_mcp_status(), ask the agent a question through it, and see how a server that fails to start is reported.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/connecting-an-mcp-server
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      split: columns
+      areas:
+        - { name: notebook, tabs: [] }
+        - { name: code, size: 0.4, tabs: ["file:stock_server.py"] }
+gating: soft
+finish: |
+  You have connected an agent to a tool server it did not write. MCP
+  is a standard way for a program to offer tools, so a server written
+  once serves any agent that speaks it. A `stdio` entry in
+  `mcp_servers` has the SDK start the server as a process of its own,
+  `get_mcp_status()` says whether it connected and what it offers,
+  and a server that fails is reported there and nowhere else.
+
+  Next is **Answer from your own data**, which puts the shop's
+  documents and its orders database within the agent's reach, and
+  compares the two ways of getting at what you know.
+
+  [Connect to external tools with MCP](https://code.claude.com/docs/en/agent-sdk/mcp)
+  in the SDK's documentation covers every kind of server and how
+  each is authenticated, and https://modelcontextprotocol.io is the
+  home of the protocol itself.
+variables:
+  - name: notebook
+    type: path
+    default: connecting-an-mcp-server.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-server-of-its-own.md
+  - pages/03-ask-through-it.md
+  - pages/04-a-server-that-does-not-start.md
+  - pages/05-other-ways-to-reach-a-server.md
+  - pages/06-finish.md

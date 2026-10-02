@@ -1,0 +1,52 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: giving-the-agent-a-tool
+title: Give the agent a tool of your own
+version: 0.1.0
+description: Turn a Python function into a tool an agent can ask for. Decorate a stock lookup with @tool, put it in a server that runs inside your own program, and watch the agent call it. Then run the same question against a vague description and an honest one, add a second tool, and mark tools that only look so that the SDK runs them side by side.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/giving-the-agent-a-tool
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 20m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      areas:
+        - { name: notebook, tabs: [] }
+gating: soft
+finish: |
+  You have given an agent tools of your own. `@tool` turns a Python
+  function into a tool, `create_sdk_mcp_server()` gathers tools into
+  a server that runs inside your program, and `mcp_servers` hands it
+  to the agent, which calls each tool as `mcp__<server>__<tool>`. The
+  model never sees the function. It sees a name, a description and
+  the shape of the input, so writing those is writing a prompt.
+
+  Next is **Connect an MCP server**, which takes the same tool out of
+  your program and into a server of its own, and says what the
+  protocol behind `mcp_servers` is.
+
+  [Give Claude custom tools](https://code.claude.com/docs/en/agent-sdk/custom-tools)
+  in the SDK's documentation covers input schemas, errors and what a
+  tool can return.
+variables:
+  - name: notebook
+    type: path
+    default: giving-the-agent-a-tool.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-a-function-the-agent-can-ask-for.md
+  - pages/03-what-the-model-knows-of-it.md
+  - pages/04-say-what-it-cannot-do.md
+  - pages/05-a-second-tool.md
+  - pages/06-tools-that-only-look.md
+  - pages/07-finish.md

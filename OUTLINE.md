@@ -7,10 +7,10 @@ before adding a workshop, and update it when one is added, changed or
 dropped: the status table at the end records where each workshop
 stands, and the open questions section shrinks as they are settled.
 
-The first workshop is written. The first collection is designed in
-full below. The second and third are designed to the level of what each
-workshop is for, and their entries are filled out, with the user,
-before the first workshop of each is written.
+The first two collections are written, and their entries below say
+what was built. The third is designed to the level of what each
+workshop is for, and its entries are filled out, with the user, before
+its first workshop is written.
 
 ## What this repository is
 
@@ -255,6 +255,109 @@ found.
   earlier run was still going after four minutes and was stopped. The
   likely cause is the Restart or Continue dialog a reopened workshop
   shows. Test on a copy, which is what the tool does by default.
+
+Found while writing the extending collection, on the same release,
+which bundles Claude Code 2.1.286. The entries further down are
+written to these.
+
+- **A tool of your own needs approving.** A call to an SDK MCP tool
+  with no `allowed_tools` entry was refused as `Write` is, with a
+  `permission_denied` message, whether or not the tool was marked
+  read-only. `tools=[]` leaves MCP tools in place.
+
+- **A vague description gets a tool misused.** With a title lookup
+  described as "Look up a book.", Haiku passed an author's name as the
+  title on three runs of three and reported that the shop had nothing
+  by her. With a description that said the tool matches whole titles
+  only, it asked for a title on three of three and made no call.
+
+- **`readOnlyHint` is what lets calls overlap.** Three calls asked for
+  in one reply, each waiting a second, started a second apart without
+  the annotation and within half a second of each other with it.
+
+- **The `mcp` package is at version 2.** 2.2.0 is what resolves
+  beside the pinned SDK, which accepts 1.23 and up. `FastMCP` is now
+  `MCPServer` in `mcp.server.mcpserver`, and the old import raises. A
+  tool function that returns `str` has its result delivered as
+  `{"result": ...}`.
+
+- **A server that fails raises nothing.** A stdio entry whose file
+  did not exist gave `failed` with "Connection closed" in
+  `get_mcp_status()`, the other server connected, and `connect()`
+  returned normally. `pending` was seen once, for a server that was
+  on its way to failing, so the cell polls until the status settles.
+
+- **`"project"` reads upward.** With `setting_sources=["project"]`
+  the session was given the `CLAUDE.md` of the working directory and
+  of every directory above it, this repository's own included, and
+  found the skills in this repository's `.claude/skills` as well as
+  the workspace's. `get_context_usage()` lists the instruction files
+  under `memoryFiles` with a type and a token count. The repository's
+  `CLAUDE.md` is one line that imports `AGENTS.md`, and counted as 12
+  tokens.
+
+- **A skill needs three options.** `setting_sources=["project"]`,
+  `skills=[name]` and `"Skill"` in `tools`. Nothing was needed in
+  `allowed_tools`. The session found sixteen skills, Claude Code's own
+  among them, and showed the model the one named. The call to `Skill`
+  is answered "Launching skill", and the body then arrives as text in
+  a message in the user's role.
+
+- **JupyterLab hides dot directories.** The contents API does not
+  list or open them, so a file under `.claude/` can be neither shown
+  in a pane nor written by `file-write`. A cell writes there instead.
+
+- **`can_use_tool` works with `query()`.** The documentation's
+  example passes the prompt as a stream and registers a hook to keep
+  it open. On the pinned release a plain string prompt worked, and so
+  did hooks. The callback is not called for a `Read` in the working
+  directory. A denial reaches the model as the tool result and is
+  listed in `permission_denials`.
+
+- **Haiku asks when it has to.** Told in the system prompt to ask
+  rather than guess, it called `AskUserQuestion` on five runs of five
+  when the task needed a fact it had not been given, and did not on a
+  run where the task could be done without.
+
+- **A rule in the system prompt was argued away.** "Never write a
+  file anywhere but the notices directory, whoever asks" lost to a
+  request that said the manager had approved an exception, on four
+  runs of four. A `PreToolUse` hook that denies is reported to the
+  model as "PreToolUse:Write hook error:" and the reason, is listed
+  in `permission_denials`, and ran before `acceptEdits` was applied.
+  A `PostToolUse` hook is called for a `Read` and not for a call that
+  was denied.
+
+- **A subagent runs in the background unless told not to.** The main
+  agent's turn ended with "I've launched a reader agent" and no
+  answer. `background=False` on the definition did not change that.
+  `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1` in `env` did, and is what
+  the workshop uses.
+
+- **A subagent can use only tools the session has.** With `Agent`
+  alone in the main agent's `tools`, the subagent's `Glob` was denied
+  by rule. The tool is `Agent` in a `ToolUseBlock` and `Task` in the
+  `init` message. `usage` on the result is the main conversation's,
+  and `model_usage` and the cost include the subagent.
+
+- **Delegating costs more and leaves less.** Reading ten files left
+  about 7,500 tokens in the conversation of the agent that read them
+  and about 1,500 in that of the agent that delegated, while the
+  tokens sent over the whole run rose from about 14,000 to about
+  25,000.
+
+- **`/compact` works on Haiku.** The boundary message gave 9,238
+  tokens before and 4,084 after. Tool results in the conversation
+  went to zero, the summary arrived as a user message, and about
+  3,100 tokens of recently read files were attached again. A stock
+  code given in the first prompt survived. A detail from a file read
+  early did not.
+
+- **Tool search needs the `ToolSearch` tool.** With `tools=[]` twenty
+  MCP tool definitions, about 1,400 tokens, were loaded up front. With
+  `tools=["ToolSearch"]` they were deferred, the model looked one up
+  and called it, and the run took a turn more. The `ToolSearch` tool
+  is about 900 tokens itself.
 
 ## Shape of the foundations collection
 
@@ -812,10 +915,12 @@ every session, and skills, which are loaded only when they are needed.
 does, code that enforces what it may not do, work handed to
 subagents, and a session that runs long without filling its window.
 
-Fifteen to twenty minutes each, about three hours in all. Notebook
-workshops, most with a code pane beside the notebook
-showing the shipped tool, server, skill or instruction file the pages
-talk about, so the learner reads what the agent is being given.
+Fifteen to twenty minutes each, about two and three quarter hours in
+all. Notebook workshops. Four of them, 2 to 5, have a code pane
+beside the notebook showing the one shipped file the pages are about:
+the server's source, the SQL the database is built from, the
+instruction file, the skill. The others have nothing that is better
+read in a pane than in a cell, and use the plain notebook layout.
 
 On the question this collection was asked to answer, what the SDK
 provides for "knowledge": it has no vector store and no retrieval
@@ -825,159 +930,391 @@ fronts a database or an API, by having instructions loaded into every
 session, and by loading a skill. Workshop 3 teaches the first two side
 by side, 4 and 5 the others.
 
-## The extending workshops
+Between them the nine workshops make about forty model calls in one
+pass, the login checks included. All are on Haiku except one run of
+workshop 8.
 
-These entries say what each workshop is for. Each is filled out to the
-detail of the foundations entries, and checked against the pinned
-release, before the collection is written.
+## The extending workshops
 
 ### 1. `giving-the-agent-a-tool`: Give the agent a tool of your own
 
 How a Python function becomes something the model can ask for.
 
-A function that looks up the stock of a book is decorated with `@tool`,
-put in a server made by `create_sdk_mcp_server()`, and passed in
-`mcp_servers`. The agent calls it, as `mcp__<server>__<tool>`. The
-pages dwell on the part that is not code: the tool's name, description
-and input schema are all the model knows of it, so writing them is
-writing a prompt. The learner runs the same question against a vague
-description and a clear one. Read-only tools are marked as such, which
-lets the SDK run them side by side.
+A function that looks a title up in the shop's stock list is decorated
+with `@tool`, put in a server made by `create_sdk_mcp_server()`, and
+passed in `mcp_servers`. The page names the four parts of a tool, says
+that `tools=[]` covers only the built-in tools, and that a tool of
+your own needs approving with `allowed_tools`, as `Write` did. A
+function defined in the second cell runs a question against a server
+and prints each request and what the handler sent back. The first run
+asks about one title, and the handler's own list of calls shows the
+function ran in the notebook's kernel.
 
-- Format: notebook with a code pane. Source: `custom-tools`, `@tool`
-  and `create_sdk_mcp_server()` in `python`, and
-  `examples/mcp_calculator.py`. Length: 20 minutes.
+The pages then dwell on the part that is not code. A cell prints the
+name, description and input schema, which is all the model is shown.
+The same handler is wrapped again under a description of four words,
+and a customer asks whether the shop has anything by an author. The
+tool matches titles only. With the vague description the model passes
+the author as a title, is told there is no such book, and tells the
+customer the shop has nothing by her, which the stock file shows is
+wrong. With the description that says what the tool cannot do, it
+asks for a title. A second tool that searches by author is then added
+to the server, and the question is answered.
+
+The last page marks the tool read-only. A handler that waits a second
+and records when it started is asked about three books at once, behind
+a plain tool and behind one with `ToolAnnotations(readOnlyHint=True)`,
+and the printed times show the calls running one after another and
+then side by side.
+
+- Format: notebook. The checks read that the handler was called and
+  the stock code from the file is in the answer, that the two runs on
+  the author question succeeded with one tool in the session, that the
+  run with two tools called the search by author and named both
+  books, that the plain tool's calls did not overlap and the read-only
+  tool's did.
+
+- Ships: `shop/stock.csv`, six made-up books by made-up authors, so
+  that nothing the model knows from training can answer.
+
+- Source: `custom-tools`, `@tool`, `create_sdk_mcp_server()` and
+  `ToolAnnotations` in `python`, and `examples/mcp_calculator.py`. In
+  three trial runs of each, the vague description had the author
+  passed as a title every time and the clear one had the model ask
+  for a title every time. Neither is checked.
+
+- Model calls: seven, the login check included. Length: 20 minutes.
 
 ### 2. `connecting-an-mcp-server`: Connect an MCP server
 
 What the Model Context Protocol is, and how an agent uses a server it
 did not write.
 
-The same stock tool, now in a small server of its own that the
-workshop ships and the SDK starts as a separate process. The page says
-what MCP is, a standard way for a program to offer tools to any agent,
-and why that matters: the tool is written once and used from any
-client. The learner connects it with a `stdio` entry in `mcp_servers`,
-reads its state and tool list with `get_mcp_status()`, and sees a
-server that fails to start reported there. The page names the remote
-transports without using them.
+The welcome page says what MCP is, a standard way for a program to
+offer tools to any agent, and why that matters: the tool is written
+once and used from any client. The same stock lookup is now a small
+server program of its own, open in the code pane, written with the
+`mcp` package and knowing nothing of Claude. A diagram shows where it
+runs beside the in-process server of the workshop before.
 
-- Format: notebook with a code pane. Source: `mcp`, the MCP
-  configuration types in `python`, and modelcontextprotocol.io. The
-  `mcp` package the server is written with is installed as a
-  dependency of the SDK. Length: 20 minutes.
+A `stdio` entry in `mcp_servers` names the command that starts it,
+with `sys.executable` so that it runs on the kernel's Python. A
+`ClaudeSDKClient` is connected, and `get_mcp_status()` shows the
+server connected, the name it gave itself and its two tools, with no
+model call. The agent is then asked a question through it. A second
+client is given a second server whose file does not exist, after a
+`quiz` on what will happen: nothing raises, the good server connects,
+and the bad one is reported as `failed`. The last page lays out the
+four kinds of entry, names the remote ones without using them, and
+says at last what `strict_mcp_config=True` has been keeping out.
+
+- Format: notebook with a code pane on `stock_server.py`. The checks
+  read the server's status and tool names, that the agent called the
+  server's tool and the stock code from the file is in the answer,
+  that the broken server is `failed` while the other is `connected`,
+  and that the client was disconnected.
+
+- Ships: `stock_server.py`, `shop/stock.csv`, and one diagram,
+  `diagrams/where-a-tool-runs.md`.
+
+- Source: `mcp`, the MCP configuration and status types in `python`,
+  and modelcontextprotocol.io. The `mcp` package is installed as a
+  dependency of the SDK, which accepts versions 1 and 2. Version 2
+  renamed `FastMCP` to `MCPServer`, so the shipped server imports the
+  new name and falls back to the old.
+
+- Model calls: two, the login check included. Length: 15 minutes.
 
 ### 3. `answering-from-your-own-data`: Answer from your own data
 
 How an agent gets at what you know: documents and a database.
 
-Two questions about the shop. One is answered from its documents, by
-the agent searching and reading them with `Glob`, `Grep` and `Read`,
-and the page calls this what it is: the agent decides what to look for
-and reads it, rather than being handed passages picked for it in
-advance. The other needs the orders, which are in SQLite, and is
-answered through a tool that runs a read-only query. The pages compare
-the two, say when each fits, and say plainly that the SDK ships no
-vector store: retrieval by similarity is something you would put
-behind a tool, as the database is here.
+Three questions about the shop, each put to an agent with a different
+set of tools by one function. The first is answered from the shop's
+five documents, by the agent searching and reading them with `Glob`,
+`Grep` and `Read`, and the page calls this what it is: the agent
+decides what to look for and reads it, with nothing sorted or picked
+out for it in advance.
 
-- Format: notebook with a code pane. Source: `custom-tools`, `mcp`,
-  and "Keep context efficient" in `agent-loop`. The database is made
-  by a cell from a shipped SQL file, so nothing binary is committed.
-  Length: 20 minutes.
+A cell then builds a SQLite database from the SQL file open in the
+code pane, and the page says why reading is the wrong way to answer a
+question about records. A tool is put in front of the database: its
+description carries the layout of the tables, and the connection is
+opened read-only, which the cell shows by calling the handler
+directly with a `DELETE`. Given that tool and no file tools, the agent
+writes a query that joins and sums, and the database does the
+arithmetic.
+
+The third question needs both: whether a customer can still return a
+book depends on the date of his order and on the returns policy. A
+`quiz` asks what decides which source is used. The agent, given
+everything, queries the order and reads the policy. A cell that calls
+nothing compares the three runs, and the page sets the two ways side
+by side and says plainly that the SDK ships no vector store: retrieval
+by similarity is something you would put behind a tool, as the
+database is here.
+
+- Format: notebook with a code pane on `data/orders.sql`. The checks
+  read that the first run read or searched a file and the ticket price
+  from the file is in the answer, that the database has its twelve
+  orders, that the handler refused a write and the orders are all
+  still there, that the second run ran a query and named the customer
+  the data gives, and that the third used the database tool and a
+  file tool.
+
+- Ships: the five shop documents and `data/orders.sql`. The database
+  is made by a cell, so nothing binary is committed.
+
+- Source: `custom-tools`, `mcp`, and "Keep context efficient" in
+  `agent-loop`.
+
+- Model calls: four, the login check included. Length: 20 minutes.
 
 ### 4. `instructions-that-persist`: Give instructions that persist
 
 How project instructions are loaded, and why they outlast the prompt.
 
-The shop's house rules go in a `CLAUDE.md` file in the workspace, and
-`setting_sources=["project"]` loads it. The page says what the option
-controls, which files it reads and from where, and why every other
-workshop sets it to an empty list. It contrasts the three places an
-instruction can live: the prompt, the system prompt, and a file that
-is sent with every request and so survives a conversation being
-summarised.
+The shop's house rules are in a `CLAUDE.md` in the workspace, open in
+the code pane. One function asks for a reply to a customer under
+whatever `setting_sources` it is given, and keeps the instruction
+files the session was given, from `memoryFiles` in
+`get_context_usage()`. With an empty list no project file is loaded
+and the reply follows no house rule. With `["project"]` the file is
+listed, and the reply ends with a sign-off that is in the file and
+nowhere else. The agent has no tools, so the file could only have
+reached the model by being loaded.
 
-- Format: notebook with a code pane. Source: `claude-code-features`,
-  `modifying-system-prompts`, and `examples/setting_sources.py`.
-  Length: 15 minutes.
+The page says that the `CLAUDE.md` of every directory above is loaded
+too, which a learner whose workshops sit inside a project will see in
+the list. A cell that calls nothing shows the rules counted under
+memory files and the first request larger by about their length. The
+page sets the three places an instruction can live side by side, the
+prompt, the system prompt and the file, by who writes each and whether
+it survives a conversation being summarised.
+
+The last page says what else each source loads, why every other
+workshop sets the option to an empty list, and names the two inputs
+the option does not cover: Claude Code's auto-memory, with the setting
+that turns it off, and the claude.ai connectors.
+
+- Format: notebook with a code pane on `CLAUDE.md`. The checks read
+  that the first session was given no file of type `Project`, that the
+  second was given the workspace's `CLAUDE.md` and its reply carries
+  the sign-off, and that memory files and the first request both grew.
+
+- Ships: `CLAUDE.md`.
+
+- Source: `claude-code-features`, `modifying-system-prompts`, "The
+  context window" in `agent-loop`, and `examples/setting_sources.py`.
+
+- Model calls: three, the login check included. Length: 15 minutes.
 
 ### 5. `packaging-know-how-as-a-skill`: Package know-how as a skill
 
 What a skill is, and why it is not loaded until it is needed.
 
-The shop's procedure for writing a refund reply becomes a skill, a
-directory with a `SKILL.md` in the workspace. The `skills` option
-makes it available, and the learner watches the agent call the `Skill`
-tool when a refund comes up and not otherwise. The page explains the
-design: only the skill's description is in the context to begin with,
-and its body loads on use, so an agent can have many without paying
-for them on every request.
+The shop's procedure for answering a refund request is a skill, a
+directory with a `SKILL.md`, open in the code pane. JupyterLab does
+not show directories whose names begin with a dot, so the skill is
+shipped under `skills/` and a cell copies it to `.claude/skills/`,
+where the SDK looks, and counts the words of its front matter and its
+body.
 
-- Format: notebook with a code pane. Source: `skills` and
-  `claude-code-features`. Length: 20 minutes.
+The options then set three things, and the page says what each is
+for: `setting_sources=["project"]` so the skill is found,
+`skills=["refund-reply"]` so that it and no other is shown to the
+model, and `"Skill"` in `tools`. A client connected for a moment
+reports that the session found many more skills than one, Claude
+Code's own among them, and that the model is shown one, at the cost
+of its description.
+
+A refund request then has the model call `Skill`, the body arrive as
+text in the conversation, the policy be read as the body says, and a
+reply written that carries a reference only the body gives. A
+question about opening hours is answered without it. A last cell
+compares the first and last request of the two runs: they begin the
+same size, and only the run that used the skill grew by it. The page
+sets that against a `CLAUDE.md`, which every request would carry.
+
+- Format: notebook with a code pane on `skills/refund-reply/SKILL.md`.
+  The checks read that the skill is installed, that the session lists
+  it at fewer tokens than its body has words, that the refund run
+  called `Skill` and its reply carries the reference, that the second
+  run gave the closing time from the file, and that the two first
+  requests are within a hundred tokens of each other.
+
+- Ships: `skills/refund-reply/SKILL.md`, `shop/returns-policy.md` and
+  `shop/opening-hours.md`.
+
+- Source: `skills` and `claude-code-features`.
+
+- Model calls: three, the login check included. Length: 15 minutes.
 
 ### 6. `asking-before-acting`: Ask before acting
 
 How a person stays in the loop.
 
 A `can_use_tool` callback is called when a tool needs approval. In the
-notebook it decides by a rule the page shows, standing in for a person,
-and the learner sees a call allowed, a call refused with a reason the
-model then reads, and a call allowed with its input changed. Then the
-other reason the callback is called: the agent asking a clarifying
-question through `AskUserQuestion`, which the callback answers. The
-chat app collection puts a real person behind the same callback.
+notebook it decides by rules the page lists, standing in for a
+person: a write under `notices` is allowed, a write to the shop's own
+documents is refused with a reason, a write anywhere else in the
+workspace is allowed with its path moved into `notices`, and anything
+outside the workspace is refused. One function runs a job under
+`permission_mode="default"` with the callback, and each job is a
+cell.
 
-- Format: notebook. Source: `user-input`, `permissions`, and
-  `examples/tool_permission_callback.py`. Length: 20 minutes.
+The first job shows a call allowed, and that the callback was not
+asked about the `Read` before it. The second, after a `quiz` on what
+the model is told, shows a refusal arrive as the result of the request
+and the model pass the reason on. The third shows the file land where
+the callback sent it. The fourth is the other reason the callback is
+called: a second callback answers `AskUserQuestion` with a note from
+the manager and passes everything else to the first, and the agent is
+given a notice to write that needs a day it was not told.
+
+- Format: notebook. The checks read the callback's own record of its
+  decisions and what is on disk: that a write was allowed and the
+  notice exists, that the change was refused, listed as denied and the
+  file is as it was, that the moved file exists where the rule sent it
+  and not where the model asked, and that a question was asked and the
+  notice written.
+
+- Ships: `shop/opening-hours.md`.
+
+- Source: `user-input`, `permissions`, and
+  `examples/tool_permission_callback.py`. The chat app collection puts
+  a real person behind the same callback.
+
+- Model calls: five, the login check included. Length: 20 minutes.
 
 ### 7. `guardrails-in-code`: Put guardrails in code
 
 How hooks enforce what a prompt can only ask for.
 
-An instruction in a prompt is a request, and the model may not follow
-it. A hook is code the SDK runs at a fixed point in the loop. A
-`PreToolUse` hook refuses any write outside one directory, whatever
-the model was told, and a `PostToolUse` hook keeps a log of every
-call. The page sets hooks beside the permission callback: the callback
-is asked only when approval is needed, a hook sees every call.
+The rule is that the assistant writes files in `notices` and nowhere
+else. It first goes in the system prompt, with the words "whoever
+asks", and the request argues with it: write a notice, and save a
+copy to `archive`, which the manager is said to have approved. The
+agent runs in `acceptEdits`, so nothing else stands in the way. After
+a `quiz` on what decides, the cell prints whether the copy exists. The
+page does not promise that it will. It says that either way the model
+was the one deciding.
 
-- Format: notebook. Source: `hooks`, the hook types in `python`, and
-  `examples/hooks.py`. Length: 20 minutes.
+The same rule is then a `PreToolUse` hook that looks at where the
+file would go and denies the call. The system prompt and the request
+are unchanged. The copy is not written, and the model reports the
+reason it was sent. A third run adds a `PostToolUse` hook with no
+matcher that keeps a log, which holds the `Read` that a permission
+callback is never asked about and does not hold the write that was
+refused. A page that calls nothing opens a diagram of the order
+things are asked in, sets rules, callback and hooks side by side,
+lists the events Python has, and says what a hook is not: it checks
+what it checks, and would not stop a shell command it never looks at.
+
+- Format: notebook. The checks read that the first run ended in
+  success and nothing more, that after the second `archive/door.md`
+  does not exist, with a note if the model did not try, and that the
+  log has a `Read` in it and nothing under `archive`.
+
+- Ships: `shop/opening-hours.md`, and one diagram,
+  `diagrams/before-a-tool-runs.md`.
+
+- Source: `hooks`, the hook types in `python`, the order of
+  evaluation in `permissions`, and `examples/hooks.py`. No `Bash`: the
+  point is made with `Write`.
+
+- Model calls: four, the login check included. Length: 20 minutes.
 
 ### 8. `handing-work-to-subagents`: Hand work to subagents
 
 What a subagent is, and what it saves.
 
-A task that means reading a lot to report a little is given to a
-subagent defined with `AgentDefinition`: its own instructions, its own
-tools, a context of its own, and only its final report returned. The
-learner compares the main agent's context after doing the reading
-itself and after delegating it. Each subagent can have its own model,
-which is where a small model for the reading and a larger one for the
-judgement pays.
+The question is which of ten suppliers deliver within a week, and the
+reading is their terms of supply, ten files of about three hundred
+and fifty words. One function runs an agent on a client, labels each
+tool request as the main agent's or a subagent's, by
+`parent_tool_use_id`, and when the run is over asks the client how
+many tokens the main conversation holds.
 
-- Format: notebook. Source: `subagents`, `AgentDefinition` in
-  `python`, and `examples/agents.py`. This workshop may use Sonnet for
-  the main agent. Length: 20 minutes.
+First one agent does the reading itself. Then a `reader` is defined
+with `AgentDefinition`, its description, prompt, tools and model, and
+the options are copied with four changes: the `Agent` tool, a system
+prompt that says to hand reading over, the `agents`, and an
+environment variable that makes the subagent run in the foreground.
+The page explains each, a diagram of the handover opens, and a `quiz`
+asks what comes back. The main agent asks for `Agent` once, the
+subagent's requests are printed indented, and a report returns.
+
+A cell that calls nothing compares the two: the delegating agent's
+conversation is a fifth the size, and the run as a whole was sent
+more, not less. The page says so plainly: a subagent saves room in
+the conversation that carries on, and nothing else. The last run puts
+the main agent on Sonnet and leaves the reader on Haiku, and prints
+`model_usage`, which lists each model's share.
+
+- Format: notebook. The checks read that the first run read files in
+  the main conversation and none in a subagent, that the second called
+  `Agent` and had requests inside a subagent, that both answers name a
+  supplier the files give, that the delegating conversation is the
+  smaller, and that the last run used two models.
+
+- Ships: `suppliers/`, ten files, and one diagram,
+  `diagrams/a-subagent-at-work.md`.
+
+- Source: `subagents`, `AgentDefinition` in `python`,
+  `examples/agents.py`, and the subagent and environment variable
+  pages of the Claude Code documentation for how a subagent is run in
+  the foreground.
+
+- Model calls: four, one with Sonnet as the main agent, the login
+  check included. Length: 20 minutes.
 
 ### 9. `keeping-a-long-session-small`: Keep a long session small
 
 What fills the context window, and what the SDK does when it is full.
 
-`get_context_usage()` breaks the window down by what is in it. The
-learner fills a session with tool results and watches the total, then
-sees compaction, where older history is replaced by a summary and a
-boundary message marks the place, and reads what was kept. The page
-gathers the ways to stay small that the collection has already shown,
-fewer tools, subagents, skills, and adds tool search, which loads tool
-definitions only when they are looked for.
+A client stays connected through the first four pages, and a function
+adds a row to a table each time it is called, from
+`get_context_usage()`: the tools, the conversation, the part of it
+that is tool results, and the whole. Before anything is said the two
+tools are most of the window. A turn that tells the agent a stock
+code and has it read the ten supplier files puts thousands of tokens
+in the tool results column, and a question of five words is then sent
+with all of it.
 
-- Format: notebook. Source: "The context window" in `agent-loop`,
-  `tool-search`, and `cost-tracking`. How to bring compaction about
-  cheaply, and whether tool search works on Haiku, are to be settled
-  before this is designed in detail. Length: 20 minutes.
+`/compact` is sent as a prompt, after a `quiz` on what it will do to
+the files. The cell prints the `compact_boundary` message's trigger
+and the size before and after, and the start of the summary, which
+arrives in the user's role. The table shows tool results at nothing
+and the conversation about half what it was, and the page says why it
+is not less: the SDK puts back the few files read most recently. The
+next turn asks for the stock code, which comes back, and for a detail
+from a file read early, which the agent no longer has. The page draws
+out what is kept and what is at risk, and where a rule that must hold
+belongs. Automatic compaction is explained from the threshold the
+first cell printed and not brought about.
+
+The last page gives an agent twenty tools made in a loop and measures
+one question two ways: with no built-in tools, where all twenty
+definitions are in the window, and with `ToolSearch`, where they wait
+and the model looks one up. It says honestly that with twenty small
+tools the saving is modest and costs a turn. The finish page gathers
+the ways to stay small that the collection has shown.
+
+- Format: notebook. The checks read the table: that the reading put
+  more than two thousand tokens of tool results in the conversation,
+  that the short question was sent more than the conversation held
+  before it, that a boundary arrived with fewer tokens after than
+  before and the tool results fell, that the stock code is in the
+  reply after compaction, and that the tools were loaded in one run
+  and waiting in the other.
+
+- Ships: `suppliers/`, the same ten files as workshop 8.
+
+- Source: "The context window" in `agent-loop`, "Compact history" in
+  `skills`, `tool-search`, and `cost-tracking`.
+
+- Model calls: seven, the login check included. Length: 20 minutes.
 
 ## Topics the extending collection leaves out
 
@@ -987,6 +1324,22 @@ definitions only when they are looked for.
 
 - **Remote MCP servers and their authentication.** Named in workshop
   2. They need a server to reach and credentials to hold.
+
+- **Subagents in the background, and more than one at once.** Workshop
+  8 makes its one subagent run in the foreground, so that a cell ends
+  with the answer. Task notifications, parallel subagents and resuming
+  one are named in a hint at most.
+
+- **Compaction by itself.** Workshop 9 compacts by hand and explains
+  the threshold. Filling a window to reach it would cost far more
+  usage than the lesson is worth.
+
+- **Hooks and subagents defined in files.** Both can be loaded from
+  the project's settings. The workshops define them in code, where the
+  learner can read them.
+
+- **`Bash`.** No workshop here gives the agent a shell. The points
+  about approval and hooks are made with `Write`.
 
 - **Todo tracking.** Fits the chat app, where there is somewhere to
   show it.
@@ -1161,9 +1514,12 @@ safe.
 `model="haiku"`. The tasks are small and tightly scoped, the learner's
 plan pays for every run, and the trial showed the small model does
 them. The exceptions are named in their entries: the model comparison
-in foundations workshop 5, and possibly subagents and structured
-output. One pass through the foundations collection is about forty
-calls, each a cent or two at API prices by the trial's figures.
+in foundations workshop 5, and one run of extending workshop 8, where
+the main agent is on Sonnet and its subagent on Haiku. One pass
+through the foundations collection is about forty calls, and one
+through the extending collection about forty more, each a cent or two
+at API prices by the trial's figures, and three to five cents for the
+runs that read ten files.
 
 **Every run is isolated and lean.** Every options object sets
 `setting_sources=[]`, `strict_mcp_config=True`, `tools` to exactly what
@@ -1174,7 +1530,9 @@ instructions, skills and claude.ai connectors out of the run, so every
 learner gets the same agent. The rest keep the request small, and
 turning thinking off also keeps the stream to the messages the pages
 explain. A workshop that teaches one of these options relaxes that one,
-against files it ships, and says so. The first workshop names the three
+against files it ships, and says so: extending workshops 4 and 5 set
+`setting_sources=["project"]`, and tell the learner that the files of
+the directories above the workspace are loaded with it. The first workshop names the three
 it does not explain in a hint, and foundations workshop 5 is where
 thinking is turned back on and looked at.
 
@@ -1218,6 +1576,9 @@ user asked for this on 2026-10-02 and left where to use it to
 judgement. The first workshop has two, one of the components and one
 of a run. Workshop 2 has the loop, workshop 6 the checks made before
 a tool runs, and workshop 8 the sessions left by a resume and a fork.
+In the extending collection, workshop 2 has where a tool runs,
+workshop 7 the order of hooks, rules and callback, and workshop 8 a
+subagent at work.
 A workshop gets one only where it earns its place, and a flowchart is
 laid out left to right, which fits a wide tab better than a tall one.
 
@@ -1228,7 +1589,9 @@ work to someone new to them, and the SDK is the means.
 **A running example.** The workshops share a small fictional bookshop,
 Tidewater Books: a few Markdown documents (opening hours, a returns
 policy, a staff handbook, events, a loyalty scheme) and, from the
-extending collection on, a small SQLite database of books and orders.
+extending collection on, a stock list of six made-up books, a month of
+orders as SQL that a cell builds a SQLite database from, and the terms
+of supply of ten suppliers.
 Each workshop ships the files it uses, so none depends on another. The
 documents hold details chosen to be unguessable, an odd closing time, a
 returns window of an unusual length, so that a right answer shows the
@@ -1255,8 +1618,9 @@ purpose and tells the learner that every run leaves one; see the open
 questions for the rest.
 
 **A function for a run that is repeated.** Where a workshop makes the
-same run several times with one option changed, as workshops 4, 5 and
-6 do, the first cell defines a function that makes the run and the
+same run several times with one option changed, as foundations
+workshops 4, 5 and 6 and most of the extending workshops do, the first
+cell defines a function that makes the run and the
 later cells are one line each, so that what changed is all there is to
 read. Workshops that make one run of each kind write the options out
 in full.
@@ -1331,6 +1695,12 @@ open, before the opening layout is applied. The kernel starts in the
 workspace, so `shop/opening-hours.md` is the path a cell and the agent
 both use, as the first workshop confirmed.
 
+**Hidden directories.** The contents API of the Jupyter server does
+not list, open or write files under a directory whose name begins with
+a dot. So nothing under `.claude/` can be shipped to a pane or written
+by `file-write`. Extending workshop 5 ships its skill under `skills/`
+and a cell copies it into `.claude/skills/`.
+
 **Diagrams.** `file-open` with `:factory: Markdown Preview` opens a
 shipped Markdown file rendered, mermaid blocks included, as a tab
 beside the notebook. Without `area` it joins the notebook's area, which
@@ -1374,11 +1744,19 @@ None at present.
   the extension opens finds the project environment's Python is to be
   checked then.
 
-- **What Haiku cannot do.** Compaction and tool search are to be tried
-  on Haiku before their workshops are designed in detail. Structured
-  output was tried and works. Effort made no visible difference on
+- **What Haiku cannot do.** Nothing the first two collections needed.
+  Structured output, custom tools, skills, subagents, compaction and
+  tool search all worked on it. Effort made no visible difference on
   Haiku in the trial, which is why foundations workshop 5 shows it on
   Sonnet, where it made little on a task of that size either.
+
+- **A `CLAUDE.md` inside the repository.** Extending workshop 4 ships
+  its house rules as `files/CLAUDE.md`. Claude Code loads a
+  `CLAUDE.md` below the directory it was started in when it reads a
+  file beside it, so an agent working on that workshop's files is
+  given the shop's house rules as instructions. They are harmless to
+  it. The alternative, having a page write the file, was passed over
+  so that the file could sit in the code pane from the start.
 
 - **Auto-memory in the agent's context.** A session whose working
   directory is inside a project with Claude Code auto-memory is sent
@@ -1388,8 +1766,10 @@ None at present.
   learner gets the same agent, by a small amount. One more option on
   every agent, `settings='{"autoMemoryEnabled": false}'`, closes it,
   at the price of a fourth line in every cell that the first workshop
-  has to explain. Not decided. Workshop 7 tells the learner what the
-  "Memory files" line is if they see it.
+  has to explain. Not decided. Foundations workshop 7 tells the
+  learner what the "Memory files" line is if they see it, and
+  extending workshop 4 names the setting that turns it off without
+  using it.
 
 - **When the repository goes public.** It is private for now. The
   README's clone command and the collection addresses work for others
@@ -1423,15 +1803,15 @@ Extending:
 
 | # | Workshop | Status |
 | --- | --- | --- |
-| 1 | `giving-the-agent-a-tool` | Outlined |
-| 2 | `connecting-an-mcp-server` | Outlined |
-| 3 | `answering-from-your-own-data` | Outlined |
-| 4 | `instructions-that-persist` | Outlined |
-| 5 | `packaging-know-how-as-a-skill` | Outlined |
-| 6 | `asking-before-acting` | Outlined |
-| 7 | `guardrails-in-code` | Outlined |
-| 8 | `handing-work-to-subagents` | Outlined |
-| 9 | `keeping-a-long-session-small` | Outlined |
+| 1 | `giving-the-agent-a-tool` | Done |
+| 2 | `connecting-an-mcp-server` | Done |
+| 3 | `answering-from-your-own-data` | Done |
+| 4 | `instructions-that-persist` | Done |
+| 5 | `packaging-know-how-as-a-skill` | Done |
+| 6 | `asking-before-acting` | Done |
+| 7 | `guardrails-in-code` | Done |
+| 8 | `handing-work-to-subagents` | Done |
+| 9 | `keeping-a-long-session-small` | Done |
 
 Chat app:
 

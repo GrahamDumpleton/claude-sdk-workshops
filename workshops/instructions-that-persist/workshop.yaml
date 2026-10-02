@@ -1,0 +1,54 @@
+apiVersion: jupyterlab-workshop/v1alpha1
+name: instructions-that-persist
+title: Give instructions that persist
+version: 0.1.0
+description: Keep an agent's standing instructions in a file. Put the shop's house rules in a CLAUDE.md, run the agent without them and then with setting_sources set to load them, see which files a session was given and what they add to every request, and learn what the option lets in and why the other workshops keep it empty.
+authors: [Graham Dumpleton]
+homepage: https://github.com/GrahamDumpleton/claude-sdk-workshops/tree/main/workshops/instructions-that-persist
+issues: https://github.com/GrahamDumpleton/claude-sdk-workshops/issues
+tags: [python, claude, agents]
+duration: 15m
+platforms: [linux, macos]
+capabilities:
+  - write-files
+  - kernel-exec
+requires:
+  tools:
+    - { name: claude, optional: true }
+layout: notebook
+layouts:
+  notebook:
+    main:
+      split: columns
+      areas:
+        - { name: notebook, tabs: [] }
+        - { name: code, size: 0.4, tabs: ["file:CLAUDE.md"] }
+gating: soft
+finish: |
+  You have given an agent instructions that live in a file.
+  `setting_sources=["project"]` loads the `CLAUDE.md` of the working
+  directory, and of the directories above it, into every session, and
+  `get_context_usage()` lists the files that were loaded. They are
+  sent with every request, so they hold through a long conversation,
+  and the same file serves Claude Code and your own agents. Left
+  empty, the option keeps every such file out.
+
+  Next is **Package know-how as a skill**, for the instructions an
+  agent needs only now and then, which are kept out of the way until
+  the moment they are wanted.
+
+  [Use Claude Code features in the SDK](https://code.claude.com/docs/en/agent-sdk/claude-code-features)
+  in the SDK's documentation lists what each setting source loads
+  and from where.
+variables:
+  - name: notebook
+    type: path
+    default: instructions-that-persist.ipynb
+    description: The notebook the exercises are done in
+pages:
+  - pages/01-welcome.md
+  - pages/02-an-agent-without-the-rules.md
+  - pages/03-load-the-rules.md
+  - pages/04-where-the-rules-travel.md
+  - pages/05-what-else-the-option-lets-in.md
+  - pages/06-finish.md
