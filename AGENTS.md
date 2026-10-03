@@ -88,8 +88,11 @@ with the Claude login of the person who started JupyterLab, the same
 login the `claude` command uses. A hosted session on Binder or in a
 codespace has no such login, and a JupyterLite kernel cannot start the
 Claude Code process the SDK drives. So there is no `binder/`, no
-`.devcontainer/`, no `lite/`, no analytics, and no `frontends` key in
-any manifest.
+`.devcontainer/`, no `lite/`, and no `frontends` key in any manifest.
+The one thing that leaves the machine is progress events, and only
+with the learner's opt-in from the trust dialog: `collection.yaml` at
+the root declares the analytics sink once, and `just index` carries
+the block into every collection index.
 
 A set of rules follows from that:
 

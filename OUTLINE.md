@@ -1852,7 +1852,10 @@ room for one.
 **Local only, on the learner's own login.** The workshops call the
 model with the `claude` login of whoever started JupyterLab, so they
 run on the learner's own machine and nowhere else. There is no Binder,
-Codespaces or JupyterLite configuration and no analytics. The README
+Codespaces or JupyterLite configuration. Progress events go to the
+analytics sink that `collection.yaml` declares for all three
+collections, with the learner's opt-in from the trust dialog, as the
+sibling workshop repositories do. The README
 says what a learner needs: Claude Code installed and logged in on a
 paid plan, or an API key in the environment, which the SDK uses in
 preference when it is set.
@@ -2039,10 +2042,14 @@ catalog. There is no hosted form.
 and every workshop. It does not self-test, because a runner has no
 Claude login and the workshops call the model at every step.
 
-**On GitHub, private.** The repository is at
-`https://github.com/GrahamDumpleton/claude-sdk-workshops`, private for
-now; see "When the repository goes public" under Open questions. The
-Justfile, the indexes and the README use that address.
+**On GitHub, public.** The repository is at
+`https://github.com/GrahamDumpleton/claude-sdk-workshops`, public since
+2026-10-03. The Justfile, the indexes and the README use that address,
+and the collection ids under `grahamdumpleton.me/claude-agent-sdk/`
+are now fixed, since analytics know a collection by its id. The
+analytics ingest token in `collection.yaml` and the indexes is public
+with it; it gives access to nothing and can be invalidated at the
+service.
 
 ## Extension features the workshops use
 
@@ -2203,10 +2210,6 @@ warning for a loopback host, and the chat app workshops lint clean.
   of the chat app workshops sets `CLAUDE_CODE_SKIP_PROMPT_HISTORY`, so
   that it at least is not listed as a conversation, which is the one
   place the variable is used.
-
-- **When the repository goes public.** It is private for now. The
-  README's clone command and the collection addresses work for others
-  only once it is public.
 
 ## Status
 

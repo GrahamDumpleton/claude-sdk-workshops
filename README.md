@@ -366,6 +366,7 @@ Justfile                  every common task, and the order of each collection
 pyproject.toml, uv.lock   the uv project: JupyterLab, the extension, the SDK and FastAPI, pinned
 jupyter_lab_config.py     the local start: opens the browser on the catalog and collections
 catalog.json              names every collection, written by `just index`
+collection.yaml           the analytics sink, carried by `just index` into every collection index
 collections/<name>/       the ordered index of one collection, written by `just index`
 workshops/<name>/         one workshop: workshop.yaml, pages/ and files/, and for a
                           chat app workshop checks/, the scripts behind its checks
