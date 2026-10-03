@@ -7,11 +7,12 @@ before adding a workshop, and update it when one is added, changed or
 dropped: the status table at the end records where each workshop
 stands, and the open questions section shrinks as they are settled.
 
-All three collections are written, and their entries below say what
-was built. The third was written on 2026-10-02 at the user's request,
-without its entries being filled out with him first, as the second
-had been. He reviews each collection in JupyterLab before it is
-committed.
+All three collections are written, self-tested and committed, and
+their entries below say what was built. The third was written on
+2026-10-02 at the user's request, without its entries being filled out
+with him first, as the second had been. He reviews each workshop in
+JupyterLab, and what his reviews turn up is recorded in the findings
+and carried into the entries.
 
 ## What this repository is
 
@@ -2039,9 +2040,9 @@ and every workshop. It does not self-test, because a runner has no
 Claude login and the workshops call the model at every step.
 
 **On GitHub, private.** The repository is at
-`https://github.com/GrahamDumpleton/claude-sdk-workshops`, private
-while the workshops are being written. The Justfile, the indexes and
-the README use that address.
+`https://github.com/GrahamDumpleton/claude-sdk-workshops`, private for
+now; see "When the repository goes public" under Open questions. The
+Justfile, the indexes and the README use that address.
 
 ## Extension features the workshops use
 

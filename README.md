@@ -31,9 +31,8 @@ Each collection is a course: its workshops are numbered in the order to
 take them, and the Finish dialog of each offers the next. A
 [catalog](catalog.json) names every collection.
 
-The first two collections are written. The list for the third is the
-plan, from [OUTLINE.md](OUTLINE.md), and each entry is filled in as its
-workshop is written.
+All three collections are written, and every workshop passes the
+extension's self-test.
 
 ### Agent foundations with the Claude Agent SDK
 
