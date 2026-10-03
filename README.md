@@ -213,14 +213,22 @@ any of them can be taken on its own.
 
 ## What you need
 
-- **A Claude login the SDK can use.** The SDK runs Claude Code
-  underneath and uses its login. Install
-  [Claude Code](https://code.claude.com/docs/en/setup), run `claude`,
-  and log in with a Claude Pro, Max, Team or Enterprise account. Check
-  with `claude auth status`. An API key from the
-  [Claude Console](https://platform.claude.com/) in `ANTHROPIC_API_KEY`
-  works as well, and is used in preference to the login when it is set,
-  in which case every run is billed to that key.
+- **A Claude subscription, or an API key.** The SDK runs Claude Code
+  underneath and uses its login. With a Claude subscription (Pro, Max,
+  Team or Enterprise), install
+  [Claude Code](https://code.claude.com/docs/en/setup), run `claude`
+  and log in; check with `claude auth status`. Every run then counts
+  against whatever usage limits your subscription enforces, and
+  nothing is charged per run. As Anthropic's rules stand, using a
+  subscription this way is allowed: the workshops call the model
+  through the official Claude Agent SDK for Python, on your own
+  machine, for you alone. Anthropic does change those rules, so read
+  the current terms of your plan and make your own judgement.
+
+  An API key from the [Claude Console](https://platform.claude.com/)
+  in `ANTHROPIC_API_KEY` works as well, and is used in preference to
+  the login when it is set, in which case every run is billed to that
+  key.
 
 - **[uv](https://docs.astral.sh/uv/)**, and nothing else to install.
   It fetches Python 3.14, JupyterLab, the extension, the SDK and, for
