@@ -479,10 +479,7 @@ sections above:
 
 - Lint every change. Lint must be clean, warnings included, before a
   workshop is considered done, and a workshop is not done until
-  `just test <name>` is green. The one exception is the `insecure-url`
-  warning on each `url-open` of a chat app workshop, which cannot be
-  avoided for an application served on `http://127.0.0.1`; OUTLINE.md
-  records it under Known blockers.
+  `just test <name>` is green.
 
 ## The chat app collection
 

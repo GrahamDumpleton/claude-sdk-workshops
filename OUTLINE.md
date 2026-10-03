@@ -2137,17 +2137,10 @@ workshops, with `terminal` added for the chat app workshops.
 
 ## Known blockers
 
-- **Lint warns about every pane in the chat app workshops.** The
-  `insecure-url` rule warns that an `http` page cannot be shown in a
-  pane by a JupyterLab served over `https`, and the application's
-  address is `http://127.0.0.1`. The workshops run locally, where
-  JupyterLab is served over `http` too, so the warning does not
-  apply, and it cannot be silenced: each chat app workshop lints with
-  no errors and one such warning for each `url-open`. Browsers do let
-  an `https` page frame `http://127.0.0.1`, which they treat as
-  trustworthy, so the rule, and the extension's own fallback to a new
-  tab, are broader than they need to be. That is for the extension to
-  settle.
+None at present. Until jupyterlab-workshop 0.20.0 the `insecure-url`
+rule warned on every `url-open` of the chat app workshops, since the
+application's address is `http://127.0.0.1`; that release stopped the
+warning for a loopback host, and the chat app workshops lint clean.
 
 ## Open questions
 
@@ -2275,5 +2268,4 @@ The status words:
 - **Written:** the pages exist and lint is clean.
 
 - **Done:** `just test <name>` is green, and the workshop is in the
-  index and the README. For a chat app workshop, lint is clean apart
-  from the `insecure-url` warnings described under Known blockers.
+  index and the README.
