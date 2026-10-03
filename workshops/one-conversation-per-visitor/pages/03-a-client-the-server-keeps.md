@@ -40,11 +40,12 @@ from pathlib import Path
 :title: Import the client from the SDK
 :path: app.py
 :regex: true
-:match: ^    ResultMessage,\n    StreamEvent,\n    query,$
+:match: ^    ResultMessage,\n    StreamEvent,\n    ToolUseBlock,\n    query,$
 :save: false
     ClaudeSDKClient,
     ResultMessage,
     StreamEvent,
+    ToolUseBlock,
     get_session_info,
 ```
 

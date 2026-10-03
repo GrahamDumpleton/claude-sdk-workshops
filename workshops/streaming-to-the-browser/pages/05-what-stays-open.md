@@ -47,11 +47,12 @@ options:
 explanation: "The run lives inside the route, and the route lives as long as its request. The next workshop moves the conversation out of the request, so that it can outlast one."
 ```
 
-One event type carries text. The same stream can carry anything else
-the page should know while a run is going on: that a tool was called,
-that the agent is waiting for permission, how much the run cost. Later
-workshops add those as new values of `type`, and the reader in the
-page will not need to change again.
+One event type carries text, and one says a tool was asked for. The
+same stream can carry anything else the page should know while a run
+is going on: which tool, and what came back from it, that the agent is
+waiting for permission, how much the run cost. Later workshops add
+those as new values of `type` and new fields on the ones that exist,
+and the reader in the page will not need to change again.
 
 ## Stop the server
 

@@ -159,6 +159,8 @@ def history(conversation: UUID):
         for block in blocks:
             if block["type"] == "text":
                 said.append({"role": message.type, "text": block["text"]})
+            elif block["type"] == "tool_use" and said and said[-1]["role"] == "assistant":
+                said.pop()  # what the model wrote before asking for a tool was not the answer
     return said
 
 

@@ -135,7 +135,8 @@ const model = document.getElementById("model");
 :id: wire-menu
 :title: Tell the server when the choice changes
 :path: page.html
-:match: document.getElementById("stop").onclick
+:regex: true
+:match: ^\};$
 :position: after
 model.onchange = () => post("/model", {conversation, model: model.value});
 ```

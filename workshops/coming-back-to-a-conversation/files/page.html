@@ -19,6 +19,8 @@
   .tool { font: 12px/1.4 ui-monospace, monospace; color: #567; border: 1px dashed #b9c4c9; overflow-wrap: anywhere; }
   .tool.worked { border-style: solid; }
   .tool.failed, .problem { border: 1px solid #b3392f; color: #b3392f; }
+  .tool.stopped { border-style: dotted; }
+  .ended { font-size: 12px; font-style: italic; color: #567; }
   .approval { background: #fff6dd; border: 1px solid #d9b949; }
   .approval button { margin: 8px 8px 0 0; }
   form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #d5dbde; }
@@ -88,15 +90,11 @@ async function* events(response) {
 
 async function send(text) {
   add("user", text);
-  let reply = add("assistant", "…");
+  const reply = add("assistant", "…");
   let written = "";
 
   // Put a line that is not the model's words above the bubble being waited for.
   function aside(kind, text) {
-    if (written) {
-      reply = add("assistant", "…");
-      written = "";
-    }
     const line = add(kind, text);
     reply.before(line);
     return line;
@@ -110,6 +108,9 @@ async function send(text) {
     } else if (event.type === "tools") {
       document.getElementById("tools").textContent = event.model + " with " + event.names.join(", ");
     } else if (event.type === "tool") {
+      // What the model wrote before asking for a tool was not the answer.
+      written = "";
+      reply.textContent = "…";
       aside("tool", event.name + " " + JSON.stringify(event.input).slice(0, 160)).id = event.id;
     } else if (event.type === "tool_result") {
       const line = document.getElementById(event.id);
@@ -130,6 +131,15 @@ async function send(text) {
       card.append("\n" + event.answer);
     } else if (event.type === "done") {
       if (!written) reply.remove();
+      if (event.ended !== "success") {
+        // Mark each line still waiting for a result, and say where the run ended.
+        for (const line of messages.querySelectorAll(".tool:not(.worked, .failed, .stopped)")) {
+          line.classList.add("stopped");
+          line.textContent += "\nstopped";
+        }
+        add("ended", stopping ? "Stopped" : "Ended: " + event.ended);
+      }
+      stopping = false;
     }
   }
 }
@@ -143,7 +153,12 @@ form.addEventListener("submit", (event) => {
   }
 });
 
-document.getElementById("stop").onclick = () => post("/stop", {conversation});
+// Remember that this page asked for the stop, so the end of the run can say so.
+let stopping = false;
+document.getElementById("stop").onclick = () => {
+  stopping = true;
+  post("/stop", {conversation});
+};
 
 async function start() {
   // Show what has been said in this conversation so far.

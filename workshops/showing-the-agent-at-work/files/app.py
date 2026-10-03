@@ -8,10 +8,12 @@ from pathlib import Path
 from uuid import UUID
 
 from claude_agent_sdk import (
+    AssistantMessage,
     ClaudeAgentOptions,
     ClaudeSDKClient,
     ResultMessage,
     StreamEvent,
+    ToolUseBlock,
     get_session_info,
     get_session_messages,
 )
@@ -77,6 +79,10 @@ def events_for(message):
         delta = message.event.get("delta", {})
         if delta.get("type") == "text_delta":
             yield {"type": "text", "text": delta["text"]}
+    elif isinstance(message, AssistantMessage):
+        for block in message.content:
+            if isinstance(block, ToolUseBlock):
+                yield {"type": "tool"}
     elif isinstance(message, ResultMessage):
         yield {"type": "done", "ended": message.subtype, "seconds": round(message.duration_ms / 1000, 1)}
 
@@ -139,6 +145,8 @@ def history(conversation: UUID):
         for block in blocks:
             if block["type"] == "text":
                 said.append({"role": message.type, "text": block["text"]})
+            elif block["type"] == "tool_use" and said and said[-1]["role"] == "assistant":
+                said.pop()  # what the model wrote before asking for a tool was not the answer
     return said
 
 

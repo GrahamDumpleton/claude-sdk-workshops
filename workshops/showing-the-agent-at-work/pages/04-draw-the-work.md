@@ -11,15 +11,13 @@ tool is asked for, and mark that line when its result arrives.
 There is one thing to get right about where the line goes. While a
 run is going on, the last thing in the chat is the bubble that is
 waiting for the model's words, showing three dots. A tool line belongs
-above it. And if the model had already written something in that
-bubble, what it writes after the tool is a new piece of writing and
-gets a bubble of its own.
+above it, so that the answer, when it comes, is written below the work.
 
-`aside()`, inside `send()`, does that. The `tool` branch calls it and
-gives the new line the request's id. The `tool_result` branch finds
-the line by that id, makes its border solid or red, and adds what came
-back. When the run is done, a waiting bubble that never got any words
-is taken away.
+`aside()`, inside `send()`, puts a line there. The `tool` branch
+clears the bubble as before, then calls it and gives the new line the
+request's id. The `tool_result` branch finds the line by that id,
+makes its border solid or red, and adds what came back. When the run
+is done, a waiting bubble that never got any words is taken away.
 
 ```{editor-replace}
 :id: replace-send
@@ -29,15 +27,11 @@ is taken away.
 :match: ^async function send\(text\) \{[\s\S]*?^\}$
 async function send(text) {
   add("user", text);
-  let reply = add("assistant", "…");
+  const reply = add("assistant", "…");
   let written = "";
 
   // Put a line that is not the model's words above the bubble being waited for.
   function aside(kind, text) {
-    if (written) {
-      reply = add("assistant", "…");
-      written = "";
-    }
     const line = add(kind, text);
     reply.before(line);
     return line;
@@ -49,6 +43,9 @@ async function send(text) {
       written += event.text;
       reply.textContent = written;
     } else if (event.type === "tool") {
+      // What the model wrote before asking for a tool was not the answer.
+      written = "";
+      reply.textContent = "…";
       aside("tool", event.name + " " + JSON.stringify(event.input).slice(0, 160)).id = event.id;
     } else if (event.type === "tool_result") {
       const line = document.getElementById(event.id);

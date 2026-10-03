@@ -49,7 +49,9 @@ async function* events(response) {
 
 `send()` now loops over the events. For each `text` event it adds the
 words to what has been written so far and puts that in the bubble, in
-place of the three dots.
+place of the three dots. For a `tool` event it empties the bubble and
+puts the dots back: whatever the model wrote before asking for a tool
+was not the answer, and the answer will be written in its place.
 
 ```{editor-replace}
 :id: replace-send
@@ -66,6 +68,10 @@ async function send(text) {
     if (event.type === "text") {
       written += event.text;
       reply.textContent = written;
+    } else if (event.type === "tool") {
+      // What the model wrote before asking for a tool was not the answer.
+      written = "";
+      reply.textContent = "…";
     }
   }
 }
@@ -110,10 +116,10 @@ Then the reply grows as the model writes it.
 ```
 
 ```{hint}
-:title: If the reply ran two sentences together
-A run is not always one reply. Where the model says something, asks
-for a tool, and then answers, there are two pieces of writing, and
-this page puts both in one bubble with nothing between them. The page
-does not know yet that a tool was used in between. A later workshop,
-**Show the agent at work**, tells it.
+:title: If a sentence appeared and then vanished
+The model said what it was about to do, then asked for a tool. The
+sentence streamed to the page like any other text, and the `tool`
+event that followed it told the page to clear it. The page cannot tell
+a sentence of that kind from the answer until the model asks for the
+tool, so it shows the words for the moment it takes.
 ```

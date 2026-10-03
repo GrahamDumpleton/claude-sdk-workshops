@@ -21,8 +21,8 @@ more with the loop in mind.
   ties each result to its line.
 
 - **Words in between.** Anything the model wrote before it had
-  finished looking has a bubble of its own now, above the lines that
-  came after it.
+  finished looking was cleared when the next line appeared, as it was
+  before. Only the answer stays.
 
 ```{quiz}
 :id: what-returned-counts
@@ -34,12 +34,16 @@ options:
 explanation: "A tool result becomes part of the conversation. That is how the model comes to know what was in the file, and it is why a long session of reading costs more with every message."
 ```
 
-What the page shows is a choice, and this is one of several. The name
-and input of each tool suits people who want to know what the agent is
-up to, such as the staff of a shop. A page for the public might say
-"Looking that up" and no more. Either way the choice is made in two
-places you now know: what `events_for()` sends, and what `send()`
-draws.
+How this information is shown is up to the page, and the lines here
+are deliberately raw: the tool's name and its input as the model gave
+them, a file path in full. These workshops are about the mechanism,
+what the server learns from the SDK and how it reaches the browser,
+more than about how a finished chat should look, and the workshops
+that follow draw the lines the same way. A real page would choose for
+its readers. One for the staff of a shop might shorten the path and
+drop the braces; one for the public might say "Looking that up" and
+no more. Either way the choice is made in two places you now know:
+what `events_for()` sends, and what `send()` draws.
 
 A request that fails is drawn in red. Nothing failed here, because
 reading a file that exists does not. The next workshop gives the

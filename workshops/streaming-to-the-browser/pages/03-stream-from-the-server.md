@@ -25,15 +25,26 @@ in a message of the type `StreamEvent`.
     include_partial_messages=True,
 ```
 
-The server needs the name `StreamEvent` to recognise those messages.
+The server needs the name `StreamEvent` to recognise those messages,
+and two more names for something the next step looks for: a reply in
+which the model asks for a tool is an `AssistantMessage` holding a
+`ToolUseBlock`.
 
-```{editor-insert}
-:id: add-stream-event
-:title: Import StreamEvent
+```{editor-replace}
+:id: import-names
+:title: Import StreamEvent, AssistantMessage and ToolUseBlock
 :path: app.py
-:match: query,
+:regex: true
+:match: ^from claude_agent_sdk import \([\s\S]*?^\)$
 :save: false
+from claude_agent_sdk import (
+    AssistantMessage,
+    ClaudeAgentOptions,
+    ResultMessage,
     StreamEvent,
+    ToolUseBlock,
+    query,
+)
 ```
 
 ## Decide what the page is sent
@@ -45,9 +56,18 @@ carry a `delta`, the next piece of the reply, and a delta of the type
 
 The page has no use for the SDK's messages as they are. The function
 below turns each message of a run into what the page should be told
-about it, as small dictionaries with a `type`. For now there are two:
-`text`, with the next few words, and `done`, when the run has ended.
-A message the page has no use for yields nothing.
+about it, as small dictionaries with a `type`. There are three: `text`,
+with the next few words; `tool`, when the model has asked for a tool;
+and `done`, when the run has ended. A message the page has no use for
+yields nothing.
+
+The `tool` event is there because of something the model does. Asked
+for the answer only, it still sometimes writes a sentence about what it
+is going to do, asks for a tool, and answers after the result is back.
+Streamed, that sentence would reach the page as text like any other.
+The event tells the page that what came before it was not the answer.
+It says nothing yet about which tool was asked for: a later workshop,
+**Show the agent at work**, fills it out.
 
 ```{editor-insert}
 :id: add-events-for
@@ -61,6 +81,10 @@ def events_for(message):
         delta = message.event.get("delta", {})
         if delta.get("type") == "text_delta":
             yield {"type": "text", "text": delta["text"]}
+    elif isinstance(message, AssistantMessage):
+        for block in message.content:
+            if isinstance(block, ToolUseBlock):
+                yield {"type": "tool"}
     elif isinstance(message, ResultMessage):
         yield {"type": "done", "ended": message.subtype, "seconds": round(message.duration_ms / 1000, 1)}
 
@@ -141,7 +165,8 @@ curl -sN -X POST http://127.0.0.1:{{ server_port }}/chat -H "Content-Type: appli
 ```
 
 Each `data:` line is one value the route yielded, written as JSON. The
-lines came a few at a time while the model wrote, and the last is the
+lines came a few at a time while the model wrote, a line saying only
+`tool` marks where it asked to read the file, and the last is the
 `done` event. That is everything the page will be sent.
 
 ```{verify}

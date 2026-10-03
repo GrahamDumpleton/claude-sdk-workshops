@@ -34,11 +34,12 @@ check's message says how many turns the run took.
 ```
 
 Where the model wrote something before it had finished looking, as it
-sometimes does, the page ran that together with the answer in one
-bubble. It has no way to know that anything happened in between.
+sometimes does, the page showed it for a moment and cleared it when
+the `tool` event arrived. That event is all the page was told, and it
+says nothing about which tool, or what came back.
 
 Every step of that work passed through the server. `turn()` in
 {open}`app.py` reads each message of the run from the client, and
 `events_for()` decides what the page is told about each. It was
-handed the model's tool requests and the results that came back, and
-for each of them it yielded nothing.
+handed the model's tool requests and the results that came back. For
+a request it yielded `tool` and no more, and for a result nothing.

@@ -23,9 +23,12 @@ The route below takes a conversation id from the address, as in
 who spoke and the text.
 
 A transcript holds more than was said: tool requests and their results
-are in it too. The route keeps the blocks of text and leaves the rest.
-A message from the user is sometimes plain text and sometimes a list of
-blocks, so it handles both.
+are in it too. The route keeps the blocks of text and leaves the rest,
+with one exception. Where the model wrote something and then asked for
+a tool, that text was not the answer, and the page did not keep it
+when it was streamed. So the route drops it too, when it meets the
+request that followed it. A message from the user is sometimes plain
+text and sometimes a list of blocks, so it handles both.
 
 ```{editor-insert}
 :id: import-messages
@@ -51,6 +54,8 @@ def history(conversation: UUID):
         for block in blocks:
             if block["type"] == "text":
                 said.append({"role": message.type, "text": block["text"]})
+            elif block["type"] == "tool_use" and said and said[-1]["role"] == "assistant":
+                said.pop()  # what the model wrote before asking for a tool was not the answer
     return said
 
 

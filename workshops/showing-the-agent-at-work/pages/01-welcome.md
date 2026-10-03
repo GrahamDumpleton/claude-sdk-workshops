@@ -52,9 +52,10 @@ The server keeps a conversation for each visitor. A `Conversation` in
 `app.py` holds a connected client, runs one turn at a time, and puts
 the events of each turn on a queue, which the `chat()` route sends to
 the page. `events_for()` decides what the page is told about each
-message of a run, and so far that is two things: the text as it is
-written, and that the run is done. The page keeps the id of its
-conversation, and shows what was said when it loads.
+message of a run, and so far that is three things: the text as it is
+written, that the model has asked for a tool, and that the run is
+done. The page keeps the id of its conversation, and shows what was
+said when it loads.
 
 You never have to type code. Each step changes a file or runs a command
 through a button on these pages.

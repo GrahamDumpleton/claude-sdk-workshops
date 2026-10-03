@@ -390,7 +390,14 @@ collection are written to these.
 
 - **An interrupt ends a turn with `error_during_execution`.** The
   stream ended with that result, and the client answered the next
-  message in the same session.
+  message in the same session. A tool already running was let finish,
+  with its result sent as usual; it was the next request that was not
+  made. Left unmarked, the chat ended on a solid tool line or on a
+  sentence written on the way to the next tool, which read as though
+  more was coming, so from workshop 5 the page acts on a `done` whose
+  `ended` is not `success`: it marks any line still waiting as stopped
+  and adds a line saying the run ended, "Stopped" when the page's own
+  button was pressed and otherwise how.
 
 - **A request that goes away takes a `query()` run with it.** When
   the browser closed the connection, FastAPI cancelled the route, and
@@ -423,7 +430,16 @@ collection are written to these.
 
 - **Haiku narrates whatever it is told.** Told to give the answer
   only, it still often wrote a sentence about what it was going to do
-  before it used a tool. The pages are written to either case.
+  before it used a tool. Streamed, that sentence ran into the answer
+  in one bubble, and after a reload the history route gave it back as
+  a bubble of its own, which read as something the page had not shown.
+  The application now treats text the model wrote before asking for a
+  tool as not the answer, in both places: from workshop 2 the server
+  sends a `tool` event for each `ToolUseBlock` and the page empties
+  its bubble on it, and from workshop 3 the history route drops an
+  assistant text when a tool request follows it. The sentence is
+  still visible for the moment between its streaming and the request,
+  which workshop 2 says in a hint.
 
 ## Shape of the foundations collection
 
@@ -1599,13 +1615,16 @@ lists what is missing and which workshop adds it.
 
 A longer reply arrives all at once, after three dots. The server is
 then changed in five edits: `include_partial_messages=True`, the
-`StreamEvent` name, a function `events_for()` that turns each message
-of a run into small dictionaries for the page, `text` and `done`, the
+`StreamEvent`, `AssistantMessage` and `ToolUseBlock` names, a
+function `events_for()` that turns each message of a run into small
+dictionaries for the page, `text`, a bare `tool` that tells the page
+what came before it was not the answer, and `done`, the
 `EventSourceResponse` import, and a route that yields. The raw stream
 is read with `curl` in a second terminal before the page can read it,
 so that the `data:` lines are seen as they are. The page then gains a
 reader for the stream and a `send()` that adds each piece to the
-reply. The last page says what a streamed response holds open.
+reply, and empties it on `tool`. The last page says what a streamed
+response holds open.
 
 - Format: as workshop 1, with a second terminal, `client`, beside the
   first. The checks read the count of text events the server kept for
@@ -1629,7 +1648,8 @@ runs each turn as a task that puts its events on a queue, so that a
 turn finishes whether or not its page is still listening. Two
 questions show one session across two requests. A route that reads
 the transcript with `get_session_messages()` gives the page its
-history back after a reload. A second visitor is opened in a second
+history back after a reload, dropping what the model wrote before a
+tool request as the live page does. A second visitor is opened in a second
 pane, on the other host name. A `lifespan` function closes every
 client when the server stops, and a question asked after the restart
 that edit causes is answered from the resumed session.
@@ -1649,8 +1669,8 @@ that edit causes is answered from the resumed session.
 ### 4. `showing-the-agent-at-work`: Show the agent at work
 
 A question that takes several tool calls shows a pause with nothing
-in it. `events_for()` gains a branch for a `ToolUseBlock` and one for
-a `ToolResultBlock`, sending the tool's name, input and id, and the
+in it. The `tool` event gains the tool's name, input and id, and
+`events_for()` gains a branch for a `ToolResultBlock`, sending the
 size of the result but not the result. The page draws each request as
 a line above the bubble that is waiting, and marks it when its result
 arrives. The server also keeps the names of the tools each turn
@@ -1673,7 +1693,8 @@ directory, and otherwise makes an `asyncio` future, sends the page an
 `approval` event, and waits on the future for at most forty five
 seconds. A second route completes the future. The page draws the
 request as a card with Allow and Refuse. A third route calls the
-client's `interrupt()`, behind a Stop button.
+client's `interrupt()`, behind a Stop button, and the page marks where
+a run that did not finish ended.
 
 - Format: as workshop 1. The checks read that the first run asked for
   `Write` and no file was written, that the second run recorded an

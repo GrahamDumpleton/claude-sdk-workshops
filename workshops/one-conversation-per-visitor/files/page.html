@@ -19,6 +19,8 @@
   .tool { font: 12px/1.4 ui-monospace, monospace; color: #567; border: 1px dashed #b9c4c9; overflow-wrap: anywhere; }
   .tool.worked { border-style: solid; }
   .tool.failed, .problem { border: 1px solid #b3392f; color: #b3392f; }
+  .tool.stopped { border-style: dotted; }
+  .ended { font-size: 12px; font-style: italic; color: #567; }
   .approval { background: #fff6dd; border: 1px solid #d9b949; }
   .approval button { margin: 8px 8px 0 0; }
   form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #d5dbde; }
@@ -87,6 +89,10 @@ async function send(text) {
     if (event.type === "text") {
       written += event.text;
       reply.textContent = written;
+    } else if (event.type === "tool") {
+      // What the model wrote before asking for a tool was not the answer.
+      written = "";
+      reply.textContent = "…";
     }
   }
 }

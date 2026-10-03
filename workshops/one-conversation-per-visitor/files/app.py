@@ -4,9 +4,11 @@ import time
 from pathlib import Path
 
 from claude_agent_sdk import (
+    AssistantMessage,
     ClaudeAgentOptions,
     ResultMessage,
     StreamEvent,
+    ToolUseBlock,
     query,
 )
 from fastapi import FastAPI
@@ -58,6 +60,10 @@ def events_for(message):
         delta = message.event.get("delta", {})
         if delta.get("type") == "text_delta":
             yield {"type": "text", "text": delta["text"]}
+    elif isinstance(message, AssistantMessage):
+        for block in message.content:
+            if isinstance(block, ToolUseBlock):
+                yield {"type": "tool"}
     elif isinstance(message, ResultMessage):
         yield {"type": "done", "ended": message.subtype, "seconds": round(message.duration_ms / 1000, 1)}
 
